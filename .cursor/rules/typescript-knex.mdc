@@ -1,0 +1,21 @@
+---
+description: TypeScript and Knex conventions
+globs: src/**/*.{ts,js}
+alwaysApply: false
+---
+
+# TypeScript & Knex
+
+- Keep `strict` TypeScript. Prefer explicit types on public service/model APIs.
+- Validate request input with Zod at the controller edge; throw `AppError` subclasses from services.
+- Use Knex only inside `src/models/**` (plus `src/db/**` setup/migrations).
+- Prefer JSONB for nested assessment payload/report; do not flatten report fields into columns unless querying requires it.
+- Use `ea_` + ULID for assessment ids via `src/utils/id.ts`.
+
+```typescript
+// ❌ BAD — query in controller
+const row = await db("assessments").where({ id }).first();
+
+// ✅ GOOD — controller → service → model
+const report = await AssessmentService.getById(id);
+```

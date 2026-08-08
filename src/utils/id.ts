@@ -1,0 +1,9 @@
+import { ulid } from "ulid";
+
+export function createAssessmentId(): string {
+  return `ea_${ulid()}`;
+}
+
+export function createS3FileId(): string {
+  return `sf_${ulid()}`;
+}

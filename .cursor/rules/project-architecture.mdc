@@ -1,0 +1,17 @@
+---
+description: Skill Bridge backend architecture and stack conventions
+alwaysApply: true
+---
+
+# Project architecture
+
+- Stack: Node.js, TypeScript, Express, PostgreSQL, Knex.
+- Layout: route → controller → service → model. Do not skip layers.
+- Routes only wire paths to controllers. Controllers validate and call services. Services own business logic. Models own Knex CRUD only.
+- Default API port: `3001`. CORS must allow `http://localhost:3000` and `CORS_ORIGIN`.
+- Errors always return JSON: `{ "error": "Human-readable message" }` with `400` / `404` / `500`.
+- PDF generation is out of scope for this API. Frontend owns PDF via Next.js.
+- Resume files: `POST /services/s3/upload` → S3 + `s3_files` metadata → return file `id`. Frontend sends that as `resumeFileId`. Before the LLM call, resolve the file, signed URL, PDF content, then send resume + form answers to OpenRouter.
+- Assessment scoring/content is produced by OpenRouter LLM JSON — do not reintroduce deterministic scoring logic in services. Services orchestrate (validate, call LLM, persist); the model returns the EligibilityAssessment JSON.
+- Email uses Nodemailer SMTP to the assessment contact email; do not keep an `email_sent` DB column or `status` on the report JSON.
+- Report JSON fields only: `id`, `routeId`, `customerName`, `customerEmail`, `summary`, `headline`, `confidenceScore`, `breakdown`, `strengths`, `improvements`, `priorityImprovements`, `overallRecommendation`.

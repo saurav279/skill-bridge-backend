@@ -1,0 +1,15 @@
+---
+description: Require a plan and user approval before any code changes
+alwaysApply: true
+---
+
+# Plan and approve before coding
+
+Before changing any code, config, migrations, dependencies, or project files:
+
+1. **Plan first** — briefly state what you will change, which files, and why.
+2. **Wait for approval** — do not edit, create, delete, or run mutating commands until the user explicitly approves (e.g. "go", "approve", "implement", "yes").
+3. **Stay in plan mode** — if unsure, ask; never start implementation on assumption.
+4. **After approval** — implement only the approved scope; if scope grows, pause and re-plan.
+
+Exceptions (no prior plan needed): answering questions, reading/searching the codebase, or creating/updating Cursor rules when the user asked for a rule.

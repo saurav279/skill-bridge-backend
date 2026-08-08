@@ -1,0 +1,49 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+function requireEnv(name: string, fallback?: string): string {
+  const value = process.env[name] ?? fallback;
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+export const env = {
+  port: Number(process.env.PORT ?? 3001),
+  nodeEnv: process.env.NODE_ENV ?? "development",
+  databaseUrl: requireEnv(
+    "DATABASE_URL",
+    "postgres://postgres:postgres@localhost:5432/skill_bridge",
+  ),
+  corsOrigins: (
+    process.env.CORS_ORIGIN ?? "http://localhost:3000"
+  )
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+  openRouter: {
+    apiKey: process.env.OPENROUTER_API_KEY ?? "",
+    model: process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini",
+    baseUrl: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+    referer: process.env.OPENROUTER_REFERER ?? "http://localhost:3001",
+  },
+  smtp: {
+    host: process.env.SMTP_HOST ?? "",
+    port: Number(process.env.SMTP_PORT ?? 587),
+    secure: process.env.SMTP_SECURE === "true",
+    user: process.env.SMTP_USER ?? "",
+    pass: process.env.SMTP_PASS ?? "",
+    from: process.env.SMTP_FROM ?? "Skill Bridge <noreply@skillbridge.local>",
+  },
+  aws: {
+    region: process.env.AWS_REGION ?? "us-east-1",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+    bucket: process.env.AWS_S3_BUCKET ?? "",
+    maxUploadBytes: Number(
+      process.env.AWS_MAX_UPLOAD_BYTES ?? 10 * 1024 * 1024,
+    ),
+  },
+};

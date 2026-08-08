@@ -1,0 +1,27 @@
+---
+description: Assessment API contract for frontend compatibility
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Assessment API contract
+
+## Endpoints
+
+- `POST /assessments` → `201` full flat report JSON
+- `GET /assessments/:id` → same full flat report JSON
+- `POST /assessments/:id/email` → sends via Nodemailer → `{ "message": "Assessment email sent." }`
+- `POST /services/s3/upload` (multipart field `file`, PDF) → `{ id, originalName, mimeType, size }`
+- `POST /assessments` may include optional `resumeFileId` (FK to `s3_files.id`); backend loads PDF via signed URL before LLM
+
+## Report fields (only these)
+
+`id`, `routeId`, `customerName`, `customerEmail`, `summary`, `headline`, `confidenceScore`, `breakdown`, `strengths`, `improvements`, `priorityImprovements`, `overallRecommendation`
+
+Do not include probability, starRating, status, roadmap, evidence checklist, etc.
+
+## UI breakdown ids
+
+`leadership`, `innovation`, `impact`, `recognition`, `publicProfile`, `recommendationLetters`, `futurePlans` (map research/creativeWork into `innovation`)
+
+Keep shapes aligned with `src/types/assessment.ts`.
