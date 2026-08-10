@@ -1,9 +1,11 @@
 import cors from "cors";
 import express from "express";
 import { env } from "./config/env";
+import { StripeController } from "./controllers/stripe.controller";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import assessmentsRoutes from "./routes/assessments.routes";
 import s3Routes from "./routes/s3.routes";
+import stripeRoutes from "./routes/stripe.routes";
 
 export function createApp() {
   const app = express();
@@ -12,9 +14,17 @@ export function createApp() {
     cors({
       origin: env.corsOrigins,
       methods: ["GET", "POST", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "Stripe-Signature"],
     }),
   );
+
+  // Must use raw body for Stripe signature verification — before express.json()
+  app.post(
+    "/stripe/webhook",
+    express.raw({ type: "application/json" }),
+    (req, res, next) => StripeController.webhook(req, res, next),
+  );
+
   app.use(express.json({ limit: "2mb" }));
 
   app.get("/health", (_req, res) => {
@@ -23,6 +33,7 @@ export function createApp() {
 
   app.use("/services/s3", s3Routes);
   app.use("/assessments", assessmentsRoutes);
+  app.use("/stripe", stripeRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

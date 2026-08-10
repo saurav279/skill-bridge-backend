@@ -7,3 +7,7 @@ export function createAssessmentId(): string {
 export function createS3FileId(): string {
   return `sf_${ulid()}`;
 }
+
+export function createPackagePurchaseId(): string {
+  return `pp_${ulid()}`;
+}

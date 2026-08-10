@@ -46,4 +46,13 @@ export const env = {
       process.env.AWS_MAX_UPLOAD_BYTES ?? 10 * 1024 * 1024,
     ),
   },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY ?? "",
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+    prices: {
+      A: process.env.STRIPE_PRICE_A ?? "",
+      B: process.env.STRIPE_PRICE_B ?? "",
+      C: process.env.STRIPE_PRICE_C ?? "",
+    },
+  },
 };
