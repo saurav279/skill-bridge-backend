@@ -4,8 +4,8 @@ import { StripeService } from "../services/stripe.service";
 
 const createCheckoutSchema = z.object({
   packageName: z.enum(["A", "B", "C"]),
-  customerName: z.string().min(1),
-  customerEmail: z.string().email(),
+  // customerName: z.string().min(1),
+  // customerEmail: z.string().email(),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
 });

@@ -12,8 +12,8 @@ const PACKAGE_PURCHASE_TYPE = "package-purchase";
 
 export type CreateCheckoutSessionInput = {
   packageName: StripePackageName;
-  customerName: string;
-  customerEmail: string;
+  // customerName: string;
+  // customerEmail: string;
   successUrl: string;
   cancelUrl: string;
 };
@@ -45,13 +45,13 @@ function resolvePriceId(packageName: StripePackageName): string {
   return priceId;
 }
 
-function withEmailQuery(url: string, email: string): string {
-  const parsed = new URL(url);
-  if (!parsed.searchParams.has("email")) {
-    parsed.searchParams.set("email", email);
-  }
-  return parsed.toString();
-}
+// function withEmailQuery(url: string, email: string): string {
+//   const parsed = new URL(url);
+//   if (!parsed.searchParams.has("email")) {
+//     parsed.searchParams.set("email", email);
+//   }
+//   return parsed.toString();
+// }
 
 export const StripeService = {
   getClient(): Stripe {
@@ -67,14 +67,14 @@ export const StripeService = {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
-      customer_email: input.customerEmail,
-      success_url: withEmailQuery(input.successUrl, input.customerEmail),
-      cancel_url: withEmailQuery(input.cancelUrl, input.customerEmail),
+
+      success_url: input.successUrl,
+      cancel_url: input.cancelUrl,
       metadata: {
         type: PACKAGE_PURCHASE_TYPE,
         packageName: input.packageName,
-        customerName: input.customerName,
-        customerEmail: input.customerEmail,
+        // customerName: input.customerName,
+        // customerEmail: input.customerEmail,
       },
     });
 
@@ -147,18 +147,24 @@ export const StripeService = {
   async handlePackagePurchaseCompleted(
     session: Stripe.Checkout.Session,
   ): Promise<void> {
+
     const metadata = session.metadata ?? {};
     if (metadata.type !== PACKAGE_PURCHASE_TYPE) {
       return;
     }
+    const customerName = session.customer_details?.name?.trim() ?? "-";
+    const customerEmail =
+      session.customer_details?.email?.trim() ||
+      session.customer_email?.trim() ||
+      "-";
 
     const existing = await PackagePurchaseModel.findBySessionId(session.id);
     if (existing) {
       return;
     }
 
-    const customerName = metadata.customerName?.trim();
-    const customerEmail = metadata.customerEmail?.trim();
+    // const customerName = metadata.customerName?.trim();
+    // const customerEmail = metadata.customerEmail?.trim();
     const packageName = metadata.packageName?.trim();
 
     if (!customerName || !customerEmail || !packageName) {
