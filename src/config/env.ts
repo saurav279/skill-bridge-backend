@@ -56,4 +56,8 @@ export const env = {
       C: process.env.STRIPE_PRICE_C ?? "",
     },
   },
+
+  admin:{
+    email: process.env.ADMIN_EMAIL ?? "",
+  },
 };

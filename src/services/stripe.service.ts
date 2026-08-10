@@ -3,6 +3,8 @@ import { env } from "../config/env";
 import { PackagePurchaseModel } from "../models/package-purchase.model";
 import { AppError, ValidationError } from "../utils/errors";
 import { createPackagePurchaseId } from "../utils/id";
+import { sendEmail } from "./email.service";
+import { packagePurchasedEmailTemplateToAdmin } from "../controllers/emails.controller";
 
 export type StripePackageName = "A" | "B" | "C";
 
@@ -180,8 +182,14 @@ export const StripeService = {
       stripeSessionId: session.id,
       stripePaymentIntentId: paymentIntentId,
       amount: session.amount_total ?? 0,
-      currency: session.currency ?? "usd",
+      currency: session.currency ?? "gbp",
       packageName,
+    });
+
+    await sendEmail({
+      to: env.admin.email,
+      subject: "Package purchased",
+      body: packagePurchasedEmailTemplateToAdmin({ customerName, customerEmail, packageName, packagePrice: session.amount_total ?? 0 }),
     });
 
     console.log("Package purchase saved:", session.id);

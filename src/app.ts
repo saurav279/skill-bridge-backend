@@ -6,6 +6,7 @@ import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import assessmentsRoutes from "./routes/assessments.routes";
 import s3Routes from "./routes/s3.routes";
 import stripeRoutes from "./routes/stripe.routes";
+import publicRoutes from "./routes/public.routes";
 
 export function createApp() {
   const app = express();
@@ -34,7 +35,7 @@ export function createApp() {
   app.use("/services/s3", s3Routes);
   app.use("/assessments", assessmentsRoutes);
   app.use("/stripe", stripeRoutes);
-
+  app.use("/public", publicRoutes);
   app.use(notFoundHandler);
   app.use(errorHandler);
 

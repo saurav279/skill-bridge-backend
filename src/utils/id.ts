@@ -11,3 +11,7 @@ export function createS3FileId(): string {
 export function createPackagePurchaseId(): string {
   return `pp_${ulid()}`;
 }
+
+export function createContactMessageId(): string {
+  return `cm_${ulid()}`;
+}

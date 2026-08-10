@@ -1,0 +1,23 @@
+import type { Request, Response, NextFunction } from "express";
+import { z } from "zod";
+import { ContactService } from "../services/contact.service";
+
+const contactUsSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  company: z.string().min(1),
+  subject: z.string().min(1),
+  message: z.string().min(1),
+});
+
+export const PublicController = {
+  async contactUs(req: Request, res: Response, next: NextFunction) {
+    try {
+      const body = contactUsSchema.parse(req.body);
+      const result = await ContactService.submit(body);
+      res.status(201).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+};
