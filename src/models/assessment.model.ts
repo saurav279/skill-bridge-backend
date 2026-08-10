@@ -1,7 +1,7 @@
 import { db } from "../db/knex";
 import type {
   AssessPayload,
-  EligibilityAssessment,
+  Assessment,
 } from "../types/assessment";
 
 export type AssessmentRow = {
@@ -11,7 +11,7 @@ export type AssessmentRow = {
   contact_email: string | null;
   resume_file_id: string | null;
   payload: AssessPayload;
-  report: EligibilityAssessment;
+  report: Assessment;
   confidence_score: number;
   created_at: Date | string;
   updated_at: Date | string;
@@ -24,7 +24,7 @@ export type CreateAssessmentInput = {
   contactEmail?: string;
   resumeFileId?: string | null;
   payload: AssessPayload;
-  report: EligibilityAssessment;
+  report: Assessment;
   confidenceScore: number;
 };
 
@@ -54,7 +54,7 @@ export const AssessmentModel = {
 
   async updateReport(
     id: string,
-    report: EligibilityAssessment,
+    report: Assessment,
   ): Promise<AssessmentRow | undefined> {
     const [row] = await db<AssessmentRow>(TABLE)
       .where({ id })

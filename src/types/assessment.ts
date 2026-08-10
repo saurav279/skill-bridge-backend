@@ -41,7 +41,7 @@ export type PriorityImprovement = {
 };
 
 /** Flat report JSON returned by GET /assessments/:id and stored in assessments.report */
-export type EligibilityAssessment = {
+export type Assessment = {
   id: string;
   routeId: string;
   customerName?: string;

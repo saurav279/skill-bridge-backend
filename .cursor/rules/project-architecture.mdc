@@ -12,6 +12,6 @@ alwaysApply: true
 - Errors always return JSON: `{ "error": "Human-readable message" }` with `400` / `404` / `500`.
 - PDF generation is out of scope for this API. Frontend owns PDF via Next.js.
 - Resume files: `POST /services/s3/upload` → S3 + `s3_files` metadata → return file `id`. Frontend sends that as `resumeFileId`. Before the LLM call, resolve the file, signed URL, PDF content, then send resume + form answers to OpenRouter.
-- Assessment scoring/content is produced by OpenRouter LLM JSON — do not reintroduce deterministic scoring logic in services. Services orchestrate (validate, call LLM, persist); the model returns the EligibilityAssessment JSON.
+- Assessment scoring/content is produced by OpenRouter LLM JSON — do not reintroduce deterministic scoring logic in services. Services orchestrate (validate, call LLM, persist); the model returns the Assessment JSON.
 - Email uses Nodemailer SMTP to the assessment contact email; do not keep an `email_sent` DB column or `status` on the report JSON.
 - Report JSON fields only: `id`, `routeId`, `customerName`, `customerEmail`, `summary`, `headline`, `confidenceScore`, `breakdown`, `strengths`, `improvements`, `priorityImprovements`, `overallRecommendation`.

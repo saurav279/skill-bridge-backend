@@ -1,6 +1,6 @@
 # Skill Bridge Backend
 
-Node.js + TypeScript API for eligibility assessments. Contract target for the Skill Bridge Next.js frontend (`NEXT_PUBLIC_API_URL`, default `http://localhost:3001`).
+Node.js + TypeScript API for assessments. Contract target for the Skill Bridge Next.js frontend (`NEXT_PUBLIC_API_URL`, default `http://localhost:3001`).
 
 ## Stack
 
@@ -17,7 +17,7 @@ Node.js + TypeScript API for eligibility assessments. Contract target for the Sk
 cp .env.example .env
 ```
 
-Assessment reports are generated via OpenRouter (`OPENROUTER_MODEL`, default `openai/gpt-4o-mini`). The LLM returns the full `EligibilityAssessment` JSON.
+Assessment reports are generated via OpenRouter (`OPENROUTER_MODEL`, default `openai/gpt-4o-mini`). The LLM returns the full `` JSON.
 
 2. Ensure PostgreSQL is running and create the database if needed:
 

@@ -3,7 +3,7 @@ import { env } from "../config/env";
 import type {
   AssessPayload,
   AssessSectionAnswers,
-  EligibilityAssessment,
+  Assessment,
 } from "../types/assessment";
 import { AppError } from "../utils/errors";
 import { chatCompletionJson } from "./openrouter.service";
@@ -11,7 +11,7 @@ import type { ResumeContent } from "./s3.service";
 
 const priorityLevelSchema = z.enum(["high", "medium", "easy"]);
 
-const eligibilityAssessmentSchema = z.object({
+const  assessmentSchema = z.object({
   id: z.string().optional(),
   routeId: z.string().optional(),
   customerName: z.string().optional(),
@@ -68,7 +68,7 @@ function customerFromPayload(payload: AssessPayload): {
   };
 }
 
-const SYSTEM_PROMPT = `You are an eligibility assessment engine for UK Global Talent / endorsement readiness (Skill Bridge).
+const SYSTEM_PROMPT = `You are an assessment engine for UK Global Talent / endorsement readiness (Skill Bridge).
 
 Given a questionnaire payload and optional resume PDF content, analyse everything and return ONE flat JSON object with ONLY these fields:
 id, routeId, customerName, customerEmail, summary, headline, confidenceScore, breakdown, strengths, improvements, priorityImprovements, overallRecommendation
@@ -90,7 +90,7 @@ Rules:
 
 Do not invent evidence that is clearly absent from the answers and resume. Be fair but realistic.`;
 
-function buildFallbackReport(input: ScoreInput): EligibilityAssessment {
+function buildFallbackReport(input: ScoreInput): Assessment {
   const { id, payload } = input;
   const customer = customerFromPayload(payload);
   const name = customer.customerName ?? "Candidate";
@@ -157,7 +157,7 @@ function buildFallbackReport(input: ScoreInput): EligibilityAssessment {
 
 export async function buildAssessmentReport(
   input: ScoreInput,
-): Promise<EligibilityAssessment> {
+): Promise<Assessment> {
   const { id, payload, createdAt, resume } = input;
   const customer = customerFromPayload(payload);
 
@@ -206,7 +206,7 @@ export async function buildAssessmentReport(
         : undefined,
     });
 
-    const parsed = eligibilityAssessmentSchema.safeParse(raw);
+    const parsed = assessmentSchema.safeParse(raw);
     if (!parsed.success) {
       throw new AppError(
         `LLM assessment JSON failed validation: ${parsed.error.issues

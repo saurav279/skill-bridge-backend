@@ -1,7 +1,7 @@
 import { AssessmentModel } from "../models/assessment.model";
 import type {
   AssessPayload,
-  EligibilityAssessment,
+  Assessment,
   EmailAssessmentResponse,
 } from "../types/assessment";
 import { ROUTE_SECTIONS, type RouteId } from "../types/assessment";
@@ -48,7 +48,7 @@ export const AssessmentService = {
   async create(
     payload: AssessPayload,
     resumeFileId?: string | null,
-  ): Promise<EligibilityAssessment> {
+  ): Promise<Assessment> {
     validatePayload(payload);
 
     const storedResumeFileId =
@@ -82,7 +82,7 @@ export const AssessmentService = {
     return report;
   },
 
-  async getById(id: string): Promise<EligibilityAssessment> {
+  async getById(id: string): Promise<Assessment> {
     const row = await AssessmentModel.findById(id);
     if (!row) {
       throw new NotFoundError(`Assessment not found: ${id}`);

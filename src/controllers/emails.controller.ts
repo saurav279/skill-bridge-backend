@@ -1,7 +1,7 @@
-import type { EligibilityAssessment } from "../types/assessment";
+import type { Assessment } from "../types/assessment";
 
 export function assessmentEmailTemplate(
-  assessment: EligibilityAssessment,
+  assessment: Assessment,
 ): string {
   const name = assessment.customerName ?? "there";
   const improvements = assessment.improvements
@@ -12,7 +12,7 @@ export function assessmentEmailTemplate(
   return [
     `Hi ${name},`,
     "",
-    "Your Skill Bridge eligibility assessment is ready.",
+    "Your Skill Bridge assessment is ready.",
     "",
     `Confidence score: ${assessment.confidenceScore}/100`,
     "",

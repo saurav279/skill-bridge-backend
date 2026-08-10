@@ -68,6 +68,7 @@ export async function chatCompletionJson(params: {
     { role: "user", content: userContent },
   ];
 
+
   let response: Response;
   try {
     response = await fetch(`${env.openRouter.baseUrl}/chat/completions`, {
@@ -76,7 +77,7 @@ export async function chatCompletionJson(params: {
         Authorization: `Bearer ${env.openRouter.apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": env.openRouter.referer,
-        "X-Title": "Skill Bridge Assessment API",
+        "X-Title": env.openRouter.title,
       },
       body: JSON.stringify({
         model: env.openRouter.model,
@@ -100,6 +101,11 @@ export async function chatCompletionJson(params: {
       500,
     );
   }
+  //input and output tokens
+  // console.log("input tokens", data.usage?.input_tokens);
+  // console.log("output tokens", data.usage?.output_tokens);
+
+  //gpt-5.6-luna: future model
 
   const content = data.choices?.[0]?.message?.content;
   if (!content) {
