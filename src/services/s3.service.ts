@@ -194,4 +194,51 @@ export const S3Service = {
       base64,
     };
   },
+  async getResumeContentFromCloudinary(url: string): Promise<ResumeContent> {
+    if (!url) {
+      throw new AppError("Resume URL is required", 400);
+    }
+  
+    let response: Response;
+  
+    try {
+      response = await fetch(url);
+    } catch (error) {
+      throw new AppError(
+        `Failed to download resume: ${
+          error instanceof Error ? error.message : "unknown error"
+        }`,
+        500,
+      );
+    }
+  
+    if (!response.ok) {
+      throw new AppError(
+        `Failed to download resume (${response.status})`,
+        500,
+      );
+    }
+  
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+  
+    const mimeType =
+      response.headers.get("content-type") || "application/pdf";
+  
+    const originalName =
+      decodeURIComponent(url.split("/").pop()?.split("?")[0] || "resume.pdf");
+  
+    const text = await extractPdfText(buffer);
+    const base64 = buffer.toString("base64");
+  
+    return {
+      fileId: url,
+      originalName,
+      mimeType,
+      signedUrl: url,
+      text,
+      base64,
+    };
+  }
 };
+

@@ -52,15 +52,15 @@ export async function chatCompletionJson(params: {
 
   const userContent: UserContent = params.file
     ? [
-        {
-          type: "file",
-          file: {
-            filename: params.file.filename,
-            file_data: `data:${params.file.mimeType};base64,${params.file.base64}`,
-          },
+      {
+        type: "file",
+        file: {
+          filename: params.file.filename,
+          file_data: `data:${params.file.mimeType};base64,${params.file.base64}`,
         },
-        { type: "text", text: params.user },
-      ]
+      },
+      { type: "text", text: params.user },
+    ]
     : params.user;
 
   const messages: ChatMessage[] = [
@@ -77,7 +77,8 @@ export async function chatCompletionJson(params: {
         Authorization: `Bearer ${env.openRouter.apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": env.openRouter.referer,
-        "X-Title": env.openRouter.title,
+        "X-OpenRouter-Title": env.openRouter.title,
+
       },
       body: JSON.stringify({
         model: env.openRouter.model,

@@ -22,6 +22,7 @@ const createAssessmentSchema = z
   .object({
     routeId: z.enum(["digital-technology", "academia", "arts"]),
     resumeFileId: z.string().min(1).optional().nullable(),
+
   })
   .catchall(z.union([z.string(), sectionSchema]));
 
@@ -38,6 +39,8 @@ export const AssessmentsController = {
     try {
       const body = createAssessmentSchema.parse(req.body);
       const { resumeFileId, ...rest } = body;
+    
+    //  console.log(rest);
       const payload = rest as AssessPayload;
       const report = await AssessmentService.create(payload, resumeFileId);
       res.status(201).json(report);

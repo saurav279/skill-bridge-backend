@@ -170,14 +170,15 @@ export async function buildAssessmentReport(
       assessmentId: id,
       createdAt,
       questionnaire: payload,
-      resume: resume
-        ? {
-            fileId: resume.fileId,
-            originalName: resume.originalName,
-            mimeType: resume.mimeType,
-            extractedText: resume.text,
-          }
-        : null,
+      // resume: resume
+      //   ? {
+      //       fileId: resume.fileId,
+      //       originalName: resume.originalName,
+      //       mimeType: resume.mimeType,
+      //       extractedText: resume.text,
+      //     }
+      //   : null,
+      resume_content: resume?.text,
       requiredShape: {
         id: "string",
         routeId: "string",

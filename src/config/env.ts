@@ -27,8 +27,8 @@ export const env = {
     apiKey: process.env.OPENROUTER_API_KEY ?? "",
     model: process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini",
     baseUrl: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
-    referer: process.env.OPENROUTER_REFERER ?? "http://localhost:3001",
-    title: process.env.OPENROUTER_TITLE ?? "Skill Bridge",
+    referer: process.env.OPENROUTER_REFERER ?? "https://skillbridge.co.uk",
+    title: process.env.OPENROUTER_TITLE ?? "Skill Bridge-Local",
   },
   smtp: {
     host: process.env.SMTP_HOST ?? "",
@@ -56,8 +56,14 @@ export const env = {
       C: process.env.STRIPE_PRICE_C ?? "",
     },
   },
-
-  admin:{
+  cloudinary: {
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "",
+    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "",
+    maxUploadBytes: Number(
+      process.env.AWS_MAX_UPLOAD_BYTES ?? 10 * 1024 * 1024,
+    ),
+  },
+  admin: {
     email: process.env.ADMIN_EMAIL ?? "",
   },
 };

@@ -56,8 +56,10 @@ export const AssessmentService = {
 
     let resume;
     if (storedResumeFileId) {
-      resume = await S3Service.getResumeContent(storedResumeFileId);
+      // resume = await S3Service.getResumeContent(storedResumeFileId);
+      resume = await S3Service.getResumeContentFromCloudinary(storedResumeFileId);
     }
+
 
     const id = createAssessmentId();
     const createdAt = new Date().toISOString();
@@ -73,7 +75,7 @@ export const AssessmentService = {
       routeId: payload.routeId,
       contactName: report.customerName,
       contactEmail: report.customerEmail,
-      resumeFileId: storedResumeFileId,
+      // resumeFileId: storedResumeFileId, TODo: enable when we will integrate AWS S3
       payload,
       report,
       confidenceScore: report.confidenceScore,

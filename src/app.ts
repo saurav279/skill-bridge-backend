@@ -4,6 +4,7 @@ import { env } from "./config/env";
 import { StripeController } from "./controllers/stripe.controller";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import assessmentsRoutes from "./routes/assessments.routes";
+import cloudinaryRoutes from "./routes/cloudinary.routes";
 import s3Routes from "./routes/s3.routes";
 import stripeRoutes from "./routes/stripe.routes";
 import publicRoutes from "./routes/public.routes";
@@ -33,6 +34,7 @@ export function createApp() {
   });
 
   app.use("/services/s3", s3Routes);
+  app.use("/cloudinary", cloudinaryRoutes);
   app.use("/assessments", assessmentsRoutes);
   app.use("/stripe", stripeRoutes);
   app.use("/public", publicRoutes);
