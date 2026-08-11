@@ -30,14 +30,14 @@
     "stripe": "^22.4.0",
     "typescript": "^7.0.2",
     "ulid": "^3.0.2",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
+    "zod": "^4.4.3",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.2.0",
-    "@types/nodemailer": "^8.0.1",
+    "@types/nodemailer": "^8.0.1"
+  },
+  "devDependencies": {
     "tsx": "^4.23.11"
   }
 }
