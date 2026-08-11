@@ -1,8 +1,12 @@
-import { S3Service } from "./src/services/s3.service";
+
+import { sendEmail } from "./src/services/email.service";
 (async () => {
   try {
-    const resume = await S3Service.getResumeContentFromCloudinary("https://res.cloudinary.com/unfoldcloud/image/upload/v1730957482/resumes/resume-55781-1730957480891.pdf");
-    console.log(resume.text);
+    await sendEmail({
+      to: "markapture2003@gmail.com,sauravpandey0325@gmail.com",
+      subject: "Test Email Email for Admins",
+      body: "This is a test email",
+    });
   } catch (error) {
     console.error(error);
   }

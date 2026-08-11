@@ -57,8 +57,8 @@ export const env = {
     },
   },
   cloudinary: {
-    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "",
-    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "",
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",
+    uploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET ?? "",
     maxUploadBytes: Number(
       process.env.AWS_MAX_UPLOAD_BYTES ?? 10 * 1024 * 1024,
     ),

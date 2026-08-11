@@ -30,6 +30,7 @@ export async function sendEmail(
 ): Promise<void> {
   const transport = createTransport();
 
+
   try {
     await transport.sendMail({
       from: env.smtp.from,
