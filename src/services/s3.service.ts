@@ -164,7 +164,9 @@ export const S3Service = {
     let response: Response;
     try {
       response = await fetch(signedUrl);
+     
     } catch (error) {
+      console.log(error);
       throw new AppError(
         `Failed to download resume from signed URL: ${
           error instanceof Error ? error.message : "unknown error"
@@ -174,6 +176,7 @@ export const S3Service = {
     }
 
     if (!response.ok) {
+      console.log(response);
       throw new AppError(
         `Failed to download resume (${response.status})`,
         500,
@@ -203,7 +206,9 @@ export const S3Service = {
   
     try {
       response = await fetch(url);
+ 
     } catch (error) {
+      console.log(error);
       throw new AppError(
         `Failed to download resume: ${
           error instanceof Error ? error.message : "unknown error"
@@ -213,6 +218,7 @@ export const S3Service = {
     }
   
     if (!response.ok) {
+      console.log(response);
       throw new AppError(
         `Failed to download resume (${response.status})`,
         500,

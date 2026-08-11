@@ -29,6 +29,12 @@ export async function sendEmail(
  {subject, body, to}: {subject: string, body: string, to: string}
 ): Promise<void> {
   const transport = createTransport();
+  // console.log({
+  //   from: env.smtp.from,
+  //   to,
+  //   subject,
+  //   text: body,
+  // })
 
 
   try {
@@ -39,6 +45,7 @@ export async function sendEmail(
       text: body,
     });
   } catch (error) {
+    console.log(error);
     throw new AppError(
       `Failed to send assessment email: ${
         error instanceof Error ? error.message : "unknown error"

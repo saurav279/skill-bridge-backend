@@ -162,7 +162,7 @@ export async function buildAssessmentReport(
   const customer = customerFromPayload(payload);
 
   if (!env.openRouter.apiKey) {
-    return buildFallbackReport(input);
+    throw new Error("OPENROUTER_API_KEY is not set");
   }
 
   try {
@@ -182,8 +182,8 @@ export async function buildAssessmentReport(
       requiredShape: {
         id: "string",
         routeId: "string",
-        customerName: "string?",
-        customerEmail: "string?",
+        customerName: "string ? Test Customer Name",
+        customerEmail: "string ? Test Customer Email",
         summary: "string",
         headline: "string",
         confidenceScore: "number 0-100",
@@ -235,9 +235,9 @@ export async function buildAssessmentReport(
     };
   } catch (error) {
     console.warn(
-      "[scoring] OpenRouter failed — returning hardcoded assessment fallback",
+      "[scoring] OpenRouter failed",
       error instanceof Error ? error.message : error,
     );
-    return buildFallbackReport(input);
+    throw new Error("OpenRouter failed");
   }
 }

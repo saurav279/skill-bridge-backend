@@ -28,7 +28,7 @@ export const env = {
     model: process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini",
     baseUrl: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
     referer: process.env.OPENROUTER_REFERER ?? "https://skillbridge.co.uk",
-    title: process.env.OPENROUTER_TITLE ?? "Skill Bridge-Local",
+    title: process.env.OPENROUTER_TITLE ?? "SkillBridge-Local",
   },
   smtp: {
     host: process.env.SMTP_HOST ?? "",

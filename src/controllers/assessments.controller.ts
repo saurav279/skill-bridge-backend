@@ -37,8 +37,11 @@ const emailBodySchema = z.object({
 export const AssessmentsController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
+      
       const body = createAssessmentSchema.parse(req.body);
       const { resumeFileId, ...rest } = body;
+      console.log("resumeFileId", resumeFileId);
+   
     
     //  console.log(rest);
       const payload = rest as AssessPayload;
