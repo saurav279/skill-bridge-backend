@@ -68,27 +68,42 @@ function customerFromPayload(payload: AssessPayload): {
   };
 }
 
-const SYSTEM_PROMPT = `You are an assessment engine for UK Global Talent / endorsement readiness (Skill Bridge).
+const SYSTEM_PROMPT = `You are an assessment engine for UK Global Talent (Global Talent visa) endorsement readiness for Skill Bridge.
 
-Given a questionnaire payload and optional resume PDF content, analyse everything and return ONE flat JSON object with ONLY these fields:
+Role and compliance (must follow):
+- This output is readiness guidance only. It is NOT legal advice, NOT immigration advice under UK law, and NOT a decision by the Home Office, UKVI, or any endorsing body.
+- Do NOT guarantee endorsement, visa grant, or any immigration outcome.
+- Do NOT invent, exaggerate, or coach the applicant to misrepresent facts, dates, roles, metrics, or evidence.
+- Score only on evidence quality relevant to publicly known UK Global Talent / endorsement themes for the chosen route. Do not factor nationality, race, religion, sex, disability, or other protected characteristics.
+- Prefer cautious, evidence-based language. Where evidence is thin, say so and score lower.
+
+Given a questionnaire payload and optional resume content, analyse everything and return ONE flat JSON object with ONLY these fields:
 id, routeId, customerName, customerEmail, summary, headline, confidenceScore, breakdown, strengths, improvements, priorityImprovements, overallRecommendation
 
-Rules:
+JSON rules:
 - Return ONLY valid JSON. No markdown. No commentary.
+- Never use null. Omit optional keys (id, routeId, customerName, customerEmail) if unknown; otherwise use non-empty strings.
 - Do NOT include: status, assessment, probability, potentialLabel, starRating, targetScore, criteriaMatched, criteriaTotal, evidenceChecklist, evidenceUploaded, attentionAreas, nextSteps, roadmap, createdAt
-- Use both the form answers and the resume content when a resume is provided.
-- confidenceScore: integer 0–100
-- strengths: about 3 insight bullets
-- improvements: 2–4 short actionable strings
-- priorityImprovements: 3 items; priority is "high" | "medium" | "easy"; description ~40–50 words of actionable guidance
-- breakdown MUST use these ids (in this order when possible):
-  leadership, innovation, impact, recognition, publicProfile, recommendationLetters, futurePlans
-  For academia, score the research section into breakdown id "innovation".
-  For arts, score creativeWork into breakdown id "innovation".
-- Use personalDetails_name / personalDetails_email for customerName / customerEmail
-- Write summary, headline, overallRecommendation, and improvements in clear professional English
 
-Do not invent evidence that is clearly absent from the answers and resume. Be fair but realistic.`;
+Scoring rules (critical — same 0–100 scale everywhere):
+- Every breakdown[].score MUST be an integer 0–100. Never use a 0–10 scale.
+- confidenceScore MUST be an integer 0–100 and MUST equal the rounded arithmetic mean of the seven breakdown scores (allow at most ±5). If breakdown scores are low, confidenceScore MUST be low. Do not return a high readiness score with weak section scores.
+- Use both form answers and resume content when a resume is provided. Do not invent evidence that is absent.
+
+Breakdown ids (this order):
+leadership, innovation, impact, recognition, publicProfile, recommendationLetters, futurePlans
+- For academia, map research into breakdown id "innovation".
+- For arts, map creativeWork into breakdown id "innovation".
+- Score each section against UK Global Talent-style expectations for the route (digital-technology, academia, or arts): leadership/influence, innovation or outstanding work, measurable impact, independent recognition, verifiable public profile, strength of recommendation letters, and credible UK contribution / future plans.
+
+Personalisation (required):
+- Use personalDetails_name / personalDetails_email for customerName / customerEmail when present; otherwise omit those keys.
+- strengths: 3–5 bullets (max 5) naming the candidate and citing specific achievements, metrics, roles, awards, or evidence from the answers/resume — framed for UK Global Talent endorsement readiness.
+- improvements (weaknesses / gaps): 3–5 short items (max 5), personalised and actionable for a stronger UK Global Talent endorsement case (not generic career tips).
+- priorityImprovements: 3–6 items (max 6); priority is "high" | "medium" | "easy"; each description ~40–50 words of route-specific, actionable guidance tied to that candidate’s gaps.
+- summary, headline, and overallRecommendation must be personalised, professional English, and consistent with the scores. overallRecommendation must restate that this is guidance only and not a guarantee of endorsement or visa success.
+
+Be fair but realistic.`;
 
 function buildFallbackReport(input: ScoreInput): Assessment {
   const { id, payload } = input;
@@ -180,18 +195,24 @@ export async function buildAssessmentReport(
       //   : null,
       resume_content: resume?.text,
       requiredShape: {
-        id: "string",
-        routeId: "string",
-        customerName: "string ? Test Customer Name",
-        customerEmail: "string ? Test Customer Email",
-        summary: "string",
-        headline: "string",
-        confidenceScore: "number 0-100",
-        breakdown: "[{id,label,score}]",
-        strengths: "string[]",
-        improvements: "string[]",
-        priorityImprovements: "[{id,priority,title,description}]",
-        overallRecommendation: "string",
+        id: "string (omit if unknown; never null)",
+        routeId: "string (omit if unknown; never null)",
+        customerName: "string (omit if unknown; never null)",
+        customerEmail: "string (omit if unknown; never null)",
+        summary: "personalised non-empty string (never null)",
+        headline: "personalised non-empty string (never null)",
+        confidenceScore:
+          "integer 0-100; must be ~mean of breakdown scores (±5); low breakdown => low confidence",
+        breakdown:
+          "[{id,label,score}]; each score integer 0-100 (never 0-10 scale)",
+        strengths:
+          "string[3-5]; max 5; personalised UK Global Talent evidence bullets",
+        improvements:
+          "string[3-5]; max 5; personalised UK Global Talent gaps/weaknesses",
+        priorityImprovements:
+          "[{id,priority,title,description}]; 3-6 items max 6; priority high|medium|easy; personalised",
+        overallRecommendation:
+          "personalised guidance string; not a visa/endorsement guarantee (never null)",
       },
     };
 
