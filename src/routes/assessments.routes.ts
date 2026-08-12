@@ -9,8 +9,5 @@ router.post("/", (req, res, next) =>
 router.get("/:id", (req, res, next) =>
   AssessmentsController.getById(req, res, next),
 );
-router.post("/:id/email", (req, res, next) =>
-  AssessmentsController.email(req, res, next),
-);
 
 export default router;

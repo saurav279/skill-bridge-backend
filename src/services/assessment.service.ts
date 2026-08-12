@@ -84,12 +84,16 @@ export const AssessmentService = {
     return report;
   },
 
-  async getById(id: string): Promise<Assessment> {
+  async getById(id: string): Promise<Assessment & { createdAt: string }> {
     const row = await AssessmentModel.findById(id);
+
     if (!row) {
       throw new NotFoundError(`Assessment not found: ${id}`);
     }
-    return row.report;
+    return {
+      ...row.report,
+      createdAt: row.created_at as string,
+    };
   },
 
   async emailReport(

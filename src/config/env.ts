@@ -17,12 +17,7 @@ export const env = {
     "DATABASE_URL",
     "postgres://postgres:postgres@localhost:5432/skill_bridge",
   ),
-  corsOrigins: (
-    process.env.CORS_ORIGIN ?? "http://localhost:3000"
-  )
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean),
+
   openRouter: {
     apiKey: process.env.OPENROUTER_API_KEY ?? "",
     model: process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini",
@@ -66,4 +61,8 @@ export const env = {
   admin: {
     email: process.env.ADMIN_EMAIL ?? "",
   },
+  frontendUrl: (process.env.FRONTEND_URL ?? "http://localhost:3000").replace(
+    /\/$/,
+    "",
+  ),
 };

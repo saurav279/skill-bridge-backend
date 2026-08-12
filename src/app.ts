@@ -5,6 +5,7 @@ import { StripeController } from "./controllers/stripe.controller";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import assessmentsRoutes from "./routes/assessments.routes";
 import cloudinaryRoutes from "./routes/cloudinary.routes";
+import emailsRoutes from "./routes/emails.routes";
 import s3Routes from "./routes/s3.routes";
 import stripeRoutes from "./routes/stripe.routes";
 import publicRoutes from "./routes/public.routes";
@@ -14,7 +15,7 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: env.corsOrigins,
+      origin: [env.frontendUrl],
       methods: ["GET", "POST", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "Stripe-Signature"],
     }),
@@ -34,6 +35,7 @@ export function createApp() {
   });
 
   app.use("/services/s3", s3Routes);
+  app.use("/services/emails", emailsRoutes);
   app.use("/cloudinary", cloudinaryRoutes);
   app.use("/assessments", assessmentsRoutes);
   app.use("/stripe", stripeRoutes);

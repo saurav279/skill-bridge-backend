@@ -47,7 +47,7 @@ Health check: `GET http://localhost:3001/health`
 | `POST` | `/services/s3/upload` | Upload PDF to S3; save metadata in `s3_files`; return file `id` |
 | `POST` | `/assessments` | Create assessment from questionnaire (+ optional `resumeFileId`) |
 | `GET` | `/assessments/:id` | Full assessment report |
-| `POST` | `/assessments/:id/email` | Send report email via SMTP (Nodemailer) |
+| `POST` | `/services/emails/assessments/:id` | Send report email via SMTP (Nodemailer) |
 
 ### Resume + assessment flow
 

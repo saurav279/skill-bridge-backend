@@ -1,4 +1,33 @@
+import type { Request, Response, NextFunction } from "express";
+import { z } from "zod";
 import type { Assessment } from "../types/assessment";
+import { UnsubscribeService } from "../services/unsubscribe.service";
+
+const emailBodySchema = z.object({
+  email: z.string().email(),
+});
+
+export const EmailsController = {
+  async unsubscribe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = emailBodySchema.parse(req.body);
+      const result = await UnsubscribeService.unsubscribeByEmail(email);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async subscribe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = emailBodySchema.parse(req.body);
+      const result = await UnsubscribeService.subscribeByEmail(email);
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+};
 
 export function assessmentEmailTemplate(assessment: Assessment): string {
   const name = assessment.customerName ?? "there";
@@ -46,8 +75,12 @@ export function contactThankYouTemplate(input: { name: string }): string {
   ].join("\n");
 }
 
-
-export const packagePurchasedEmailTemplateToAdmin = (input: { customerName: string, customerEmail: string, packageName: string, packagePrice: number }): string => {
+export const packagePurchasedEmailTemplateToAdmin = (input: {
+  customerName: string;
+  customerEmail: string;
+  packageName: string;
+  packagePrice: number;
+}): string => {
   const customerName = input.customerName.trim() || "there";
   const packageName = input.packageName.trim() || "package";
   const packagePrice = input.packagePrice.toFixed(2);
@@ -56,8 +89,8 @@ export const packagePurchasedEmailTemplateToAdmin = (input: { customerName: stri
   return [
     `Hi Admin,`,
     "",
-    `${customerName} (${customerEmail}) has purchased ${packageName} for £${packagePrice}.`,
+    `${customerName} (${customerEmail}) has purchased Package ${packageName} for £${packagePrice}.`,
     "",
     "— Skill Bridge",
   ].join("\n");
-}
+};

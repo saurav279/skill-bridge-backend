@@ -15,3 +15,7 @@ export function createPackagePurchaseId(): string {
 export function createContactMessageId(): string {
   return `cm_${ulid()}`;
 }
+
+export function createUnsubscribeId(): string {
+  return `un_${ulid()}`;
+}
