@@ -40,9 +40,10 @@ export const AssessmentsController = {
       
       const body = createAssessmentSchema.parse(req.body);
       const { resumeFileId, ...rest } = body;
-      console.log("resumeFileId", resumeFileId);
-   
-    
+      // console.log("resumeFileId", resumeFileId);
+      const routeId = body.routeId;
+    //   console.log("routeId", routeId);
+    // throw new Error("test");
     //  console.log(rest);
       const payload = rest as AssessPayload;
       const report = await AssessmentService.create(payload, resumeFileId);

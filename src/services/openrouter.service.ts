@@ -37,8 +37,31 @@ export type ChatCompletionFile = {
   mimeType: string;
   base64: string;
 };
+const RESEARCH_DOMAINS = {
+  "digital-technology": [
+    "gov.uk",
+    "technation.io",
+  ],
+
+  academia: [
+    "gov.uk",
+    "ukri.org",
+    "royalsociety.org",
+    "thebritishacademy.ac.uk",
+    "raeng.org.uk",
+  ],
+
+  arts: [
+    "gov.uk",
+    "artscouncil.org.uk",
+    "britishfashioncouncil.co.uk",
+    "architecture.com",
+    "designbusinessassociation.co.uk",
+  ],
+} as const;
 
 export async function chatCompletionJson(params: {
+  route: "digital-technology" | "academia" | "arts";
   system: string;
   user: string;
   file?: ChatCompletionFile;
@@ -71,6 +94,12 @@ export async function chatCompletionJson(params: {
 
   let response: Response;
   try {
+   
+    const allowedDomains = RESEARCH_DOMAINS[params.route];
+    if(!allowedDomains) {
+      throw new AppError(`Invalid route: ${params.route}`, 400);
+    }
+    // throw new Error("test passed");
     response = await fetch(`${env.openRouter.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
@@ -80,11 +109,23 @@ export async function chatCompletionJson(params: {
         "X-OpenRouter-Title": env.openRouter.title,
 
       },
+     
       body: JSON.stringify({
         model: env.openRouter.model,
         temperature: 0.3,
         response_format: { type: "json_object" },
         messages,
+        tools: [
+          {
+            type: "openrouter:web_search",
+            parameters: {
+              engine: "exa",
+              max_results: 5,
+              max_total_results: 10,
+              allowed_domains: allowedDomains
+            }
+          }
+        ],
       }),
     });
   } catch (error) {
