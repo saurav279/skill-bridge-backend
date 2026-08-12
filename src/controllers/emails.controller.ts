@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import type { Assessment } from "../types/assessment";
 import { UnsubscribeService } from "../services/unsubscribe.service";
 
 const emailBodySchema = z.object({
@@ -28,38 +27,6 @@ export const EmailsController = {
     }
   },
 };
-
-export function assessmentEmailTemplate(assessment: Assessment): string {
-  const name = assessment.customerName ?? "there";
-  const improvements = assessment.improvements
-    .map((item) => `• ${item}`)
-    .join("\n");
-  const strengths = assessment.strengths.map((item) => `• ${item}`).join("\n");
-
-  return [
-    `Hi ${name},`,
-    "",
-    "Your Skill Bridge assessment is ready.",
-    "",
-    `Confidence score: ${assessment.confidenceScore}/100`,
-    "",
-    assessment.headline,
-    "",
-    assessment.summary,
-    "",
-    "Strengths:",
-    strengths || "• Review your profile highlights.",
-    "",
-    "Improvements:",
-    improvements || "• Review your profile and evidence.",
-    "",
-    assessment.overallRecommendation,
-    "",
-    `Assessment ID: ${assessment.id}`,
-    "",
-    "— Skill Bridge",
-  ].join("\n");
-}
 
 export function contactThankYouTemplate(input: { name: string }): string {
   const name = input.name.trim() || "there";

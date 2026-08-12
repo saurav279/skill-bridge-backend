@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { AssessmentService } from "../services/assessment.service";
 import type { AssessPayload } from "../types/assessment";
+import { sendEmail } from "../services/email.service";
+import { assessmentEmailTemplate } from "../email-templates/assessment";
 
 const fileMetaSchema = z.object({
   name: z.string(),
@@ -37,16 +39,20 @@ const emailBodySchema = z.object({
 export const AssessmentsController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      
+
       const body = createAssessmentSchema.parse(req.body);
-      const { resumeFileId, ...rest } = body;
-      // console.log("resumeFileId", resumeFileId);
-      const routeId = body.routeId;
-    //   console.log("routeId", routeId);
-    // throw new Error("test");
-    //  console.log(rest);
+      const { resumeFileId, ...rest } = body;  
       const payload = rest as AssessPayload;
       const report = await AssessmentService.create(payload, resumeFileId);
+
+      //send email to the user
+      if (report.customerEmail) {
+        await sendEmail({
+          to: report.customerEmail as string,
+          subject: "Your Skill Bridge Assessment Report",
+          body: assessmentEmailTemplate(report),
+        });
+      }
       res.status(201).json(report);
     } catch (error) {
       next(error);

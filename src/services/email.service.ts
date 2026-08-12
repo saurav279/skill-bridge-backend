@@ -5,6 +5,7 @@ import {
   buildUnsubscribeUrl,
   UnsubscribeService,
 } from "./unsubscribe.service";
+import { btnLink } from "../email-templates/helpers";
 
 function createTransport() {
   if (!env.smtp.host || !env.smtp.user || !env.smtp.pass) {
@@ -98,7 +99,7 @@ interface EmailTemplateProps {
   to: string;
 }
 
-export function createEmailTemplate({
+ function createEmailTemplate({
   body,
   subject,
   to,
@@ -176,25 +177,46 @@ export function createEmailTemplate({
       text-decoration: underline;
     }
     
-    /* Button styles - for when body contains button elements */
+    /* Button styles */
     .email-body button,
     .email-body a.btn {
-      background-color: #3b82f6;
-      color: #ffffff;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .email-body a.btn-primary {
+      background-color: #234FEE !important;
+      color: #ffffff !important;
+      padding: 14px 36px;
+      border: 0;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .email-body a.btn-primary:hover {
+      background-color: #234FEE !important;
+      color: #ffffff !important;
+      text-decoration: none;
+    }
+
+    .email-body a.btn-link {
+      background-color: transparent !important;
+      color: #234FEE !important;
+      padding: 0;
+      border-radius: 0;
       font-size: 14px;
       font-weight: 500;
-      transition: background-color 0.2s;
     }
-    
-    .email-body button:hover,
-    .email-body a.btn:hover {
-      background-color: #2563eb;
+
+    .email-body a.btn-link:hover {
+      color: #1F4FE0 !important;
+      text-decoration: underline;
     }
     
     /* Footer */
@@ -265,7 +287,9 @@ export function createEmailTemplate({
     <!-- Main Body -->
     <div class="email-body">
       ${body}
+      ${createFooterTemplate()}
     </div>
+
     
     <!-- Footer -->
     <div class="email-footer">
@@ -285,5 +309,17 @@ export function createEmailTemplate({
   </div>
 </body>
 </html>
+  `;
+}
+
+
+function createFooterTemplate(): string {
+  return `
+  <div class="footer-content">
+  <br>
+  <br>
+  <p>Best Regards,</p>
+  ${btnLink(env.frontendUrl, "Skill Bridge", "link")}
+  </div>
   `;
 }

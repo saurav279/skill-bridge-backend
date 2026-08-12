@@ -7,7 +7,7 @@ import type {
 import { ROUTE_SECTIONS, type RouteId } from "../types/assessment";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { createAssessmentId } from "../utils/id";
-import { assessmentEmailTemplate } from "../controllers/emails.controller";
+import { assessmentEmailTemplate } from "../email-templates/assessment";
 import { sendEmail } from "./email.service";
 import { buildAssessmentReport } from "./scoring.service";
 import { S3Service } from "./s3.service";
