@@ -1,11 +1,14 @@
 
 import { sendEmail } from "./src/services/email.service";
-import { AssessmentService } from "./src/services/assessment.service";
-import { assessmentEmailTemplate } from "./src/email-templates/assessment";
+import { stripePaymentSuccessToAdmin } from "./src/email-templates/stripe";
 (async () => {
   try {
-    const assessment = await AssessmentService.getById("ea_01KZT0ZHV1JHMBSTH8BF6V0WK7");
-    const template = assessmentEmailTemplate(assessment);
+    const template = stripePaymentSuccessToAdmin({
+      customerName: "John Doe",
+      customerEmail: "john.doe@example.com",
+      packageName: "Package A",
+      packagePrice: 100,
+    });
 
     await sendEmail({
       to: "mitime9976@rpaintel.com",

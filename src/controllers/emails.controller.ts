@@ -41,23 +41,3 @@ export function contactThankYouTemplate(input: { name: string }): string {
     "— Skill Bridge",
   ].join("\n");
 }
-
-export const packagePurchasedEmailTemplateToAdmin = (input: {
-  customerName: string;
-  customerEmail: string;
-  packageName: string;
-  packagePrice: number;
-}): string => {
-  const customerName = input.customerName.trim() || "there";
-  const packageName = input.packageName.trim() || "package";
-  const packagePrice = input.packagePrice.toFixed(2);
-  const customerEmail = input.customerEmail.trim() || "unknown";
-
-  return [
-    `Hi Admin,`,
-    "",
-    `${customerName} (${customerEmail}) has purchased Package ${packageName} for £${packagePrice}.`,
-    "",
-    "— Skill Bridge",
-  ].join("\n");
-};

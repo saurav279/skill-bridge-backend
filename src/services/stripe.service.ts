@@ -4,7 +4,7 @@ import { PackagePurchaseModel } from "../models/package-purchase.model";
 import { AppError, ValidationError } from "../utils/errors";
 import { createPackagePurchaseId } from "../utils/id";
 import { sendEmail } from "./email.service";
-import { packagePurchasedEmailTemplateToAdmin } from "../controllers/emails.controller";
+import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
 
 export type StripePackageName = "A" | "B" | "C";
 
@@ -195,8 +195,14 @@ export const StripeService = {
 
     await sendEmail({
       to: env.admin.email,
-      subject: "Package purchased",
-      body: packagePurchasedEmailTemplateToAdmin({ customerName, customerEmail, packageName, packagePrice: session.amount_total ?? 0 }),
+      subject: `Package purchased: ${packageName}`,
+      body: stripePaymentSuccessToAdmin({
+        customerName,
+        customerEmail,
+        packageName,
+        packagePrice: session.amount_total ?? 0,
+        currency: session.currency ?? "gbp",
+      }),
     });
 
     console.log("Package purchase saved:", session.id);
