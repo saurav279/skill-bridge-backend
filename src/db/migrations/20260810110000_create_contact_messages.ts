@@ -5,7 +5,6 @@ export async function up(knex: Knex): Promise<void> {
     table.text("id").primary();
     table.text("name").notNullable();
     table.text("email").notNullable();
-    table.text("company").notNullable();
     table.text("subject").notNullable();
     table.text("message").notNullable();
     table.timestamps(true, true);

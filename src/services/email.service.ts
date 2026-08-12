@@ -62,16 +62,11 @@ export async function sendEmail({
     }
 
     try {
-      //check admin email is in the recipients
-      if (recipients.includes(env.smtp.user)) {
-        console.log(`[sendEmail]: smtp email is in the recipients, you cannot send email on it (${recipient})`);
-        continue;
-      }
-      const adminEmails = env.admin.email
-        .split(",")
-        .map((email) => email.trim().toLowerCase());
-      if (adminEmails.includes(recipient)) {
-        console.log(`[sendEmail]: admin email is in the recipients, you cannot send email on it (${env.admin.email})`);
+      // Avoid sending to the SMTP mailbox itself (loop / bounce risk)
+      if (recipient === env.smtp.user.trim().toLowerCase()) {
+        console.log(
+          `[sendEmail]: smtp email is in the recipients, you cannot send email on it (${recipient})`,
+        );
         continue;
       }
 

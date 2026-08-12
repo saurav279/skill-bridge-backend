@@ -1,4 +1,8 @@
-import { contactThankYouTemplate } from "../controllers/emails.controller";
+import { env } from "../config/env";
+import {
+  contactUsNotificationToAdmin,
+  contactUsThankYouToUser,
+} from "../email-templates/contact-us";
 import { ContactMessageModel } from "../models/contact-message.model";
 import { createContactMessageId } from "../utils/id";
 import { sendEmail } from "./email.service";
@@ -6,30 +10,44 @@ import { sendEmail } from "./email.service";
 export type ContactUsInput = {
   name: string;
   email: string;
-  company: string;
   subject: string;
   message: string;
 };
 
 export const ContactService = {
-  async submit(
-    input: ContactUsInput,
-  ): Promise<{ message: string }> {
+  async submit(input: ContactUsInput): Promise<{ message: string }> {
     await ContactMessageModel.create({
       id: createContactMessageId(),
       name: input.name,
       email: input.email,
-      company: input.company,
       subject: input.subject,
       message: input.message,
     });
 
+    const templateInput = {
+      name: input.name,
+      email: input.email,
+      subject: input.subject,
+      message: input.message,
+    };
+
     await sendEmail({
       to: input.email,
       subject: "Thank you for contacting Skill Bridge",
-      body: contactThankYouTemplate({ name: input.name }),
+      body: contactUsThankYouToUser(templateInput),
     });
 
-    return { message: "Thanks for reaching out. We’ll get back to you within one business day." };
+    if (env.admin.email.trim()) {
+      await sendEmail({
+        to: env.admin.email,
+        subject: `New contact enquiry: ${input.subject.trim() || "No subject"}`,
+        body: contactUsNotificationToAdmin(templateInput),
+      });
+    }
+
+    return {
+      message:
+        "Thanks for reaching out. We’ll get back to you within five business day.",
+    };
   },
 };

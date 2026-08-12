@@ -27,17 +27,3 @@ export const EmailsController = {
     }
   },
 };
-
-export function contactThankYouTemplate(input: { name: string }): string {
-  const name = input.name.trim() || "there";
-
-  return [
-    `Hi ${name},`,
-    "",
-    "Thank you for contacting Skill Bridge.",
-    "",
-    "We have received your message and will get back to you soon.",
-    "",
-    "— Skill Bridge",
-  ].join("\n");
-}

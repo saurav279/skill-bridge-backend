@@ -4,7 +4,6 @@ export type ContactMessageRow = {
   id: string;
   name: string;
   email: string;
-  company: string;
   subject: string;
   message: string;
   created_at: Date | string;
@@ -15,7 +14,6 @@ export type CreateContactMessageInput = {
   id: string;
   name: string;
   email: string;
-  company: string;
   subject: string;
   message: string;
 };
@@ -29,7 +27,6 @@ export const ContactMessageModel = {
         id: input.id,
         name: input.name,
         email: input.email,
-        company: input.company,
         subject: input.subject,
         message: input.message,
       })
