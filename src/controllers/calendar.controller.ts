@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { CalendarService } from "../services/calendar.service";
 import { StripeService } from "../services/stripe.service";
+import { PACKAGE_NAMES } from "../types/packages";
 
 const availableSlotsQuerySchema = z.object({
   date: z
@@ -41,7 +42,7 @@ const calendarStripeSchema = z
     name: z.string().trim().min(1),
     email: z.string().trim().email(),
     description: z.string().trim().min(1),
-    packageName: z.enum(["A", "B", "C"]),
+    packageName: z.enum(PACKAGE_NAMES),
     successUrl: z.string().url(),
     cancelUrl: z.string().url(),
   })

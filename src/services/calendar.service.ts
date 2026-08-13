@@ -418,7 +418,10 @@ export const CalendarService = {
         calendarId: PRIMARY_CALENDAR_ID,
         sendUpdates: "all",
         requestBody: {
-          summary: `${input.packageName} Package | ${name}`,
+          summary: `${input.packageName
+            .split("-")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")} | ${name}`,
           description,
           start: {
             dateTime: start.toISOString(),
@@ -510,8 +513,8 @@ export const CalendarService = {
         await sendEmail({
           to: email,
           subject: isFree
-            ? "Your free Skill Bridge consultation is booked"
-            : "Thank you for booking your Skill Bridge consultation",
+            ? "Your free Skill Bridge Strategy Call is booked"
+            : "Your paid Skill Bridge Strategy Call is booked",
           body: isFree
             ? freeConsultationThankYouToUser(emailInput)
             : consultationThankYouToUser(emailInput),
@@ -521,8 +524,8 @@ export const CalendarService = {
           await sendEmail({
             to: env.admin.email,
             subject: isFree
-              ? `New free consultation booked: ${name}`
-              : `New consultation booked: ${name}`,
+              ? `New free Strategy Call booked: ${name}`
+              : `New Paid Strategy Call booked: ${name}`,
             body: isFree
               ? freeConsultationNotificationToAdmin(emailInput)
               : consultationNotificationToAdmin(emailInput),

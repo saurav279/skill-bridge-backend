@@ -7,15 +7,14 @@ import { createPackagePurchaseId } from "../utils/id";
 import { sendEmail } from "./email.service";
 import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
 import { CalendarService } from "./calendar.service";
-
-export type StripePackageName = "A" | "B" | "C";
+import type { PackageName } from "../types/packages";
 
 const PACKAGE_PURCHASE_TYPE = "package-purchase";
 const CALENDAR_CHECKOUT_TYPE = "stripe-calander";
 const STRIPE_METADATA_MAX_LENGTH = 500;
 
 export type CreateCheckoutSessionInput = {
-  packageName: StripePackageName;
+  packageName: PackageName;
   successUrl: string;
   cancelUrl: string;
 };
@@ -31,7 +30,7 @@ export type CreateCalendarCheckoutInput = {
   name: string;
   email: string;
   description: string;
-  packageName: StripePackageName;
+  packageName: PackageName;
   successUrl: string;
   cancelUrl: string;
 };
@@ -47,11 +46,11 @@ function getStripeClient(): Stripe {
   return new Stripe(env.stripe.secretKey);
 }
 
-function resolvePriceId(packageName: StripePackageName): string {
+function resolvePriceId(packageName: PackageName): string {
   const priceId = env.stripe.prices[packageName];
   if (!priceId) {
     throw new AppError(
-      `Stripe price is not configured for package "${packageName}". Set STRIPE_PRICE_${packageName}.`,
+      `Stripe price is not configured for package "${packageName}". Set STRIPE_PRICE_*_PRICE_ID.`,
       500,
     );
   }

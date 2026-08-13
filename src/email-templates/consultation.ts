@@ -74,10 +74,10 @@ export function consultationThankYouToUser(
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
 
   return `
-  ${heading("Thank you for booking")}
+  ${heading("Thank you for booking a Paid Strategy Call")}
   ${paragraph(`Hi ${name},`)}
   ${paragraph(
-    "Thank you for booking a consultation with Skill Bridge. Your appointment is confirmed.",
+    "Thank you for booking a Paid Strategy Call with Skill Bridge. Your appointment is confirmed.",
   )}
 
   ${section(
@@ -89,7 +89,7 @@ export function consultationThankYouToUser(
   )}
 
   ${paragraph(
-    "Before the call, please complete a short assessment. It helps us understand your background so we can make the conversation more useful.",
+    "Before the call, please complete a short assessment if you haven't already. It helps us understand your background so we can make the conversation more useful.",
   )}
   ${btnLink(assessmentUrl, "Complete your assessment", "primary")}
 
@@ -107,9 +107,9 @@ export function consultationNotificationToAdmin(
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
 
   return `
-  ${heading("New consultation booked")}
+  ${heading("New Paid Strategy Call booked")}
   ${paragraph("Hi Admin,")}
-  ${paragraph("Someone booked a Skill Bridge consultation. Details below:")}
+  ${paragraph("Someone booked a Skill Bridge Paid Strategy Call. Details below:")}
 
   ${section(
     "Consultation details",
@@ -141,7 +141,7 @@ export function freeConsultationThankYouToUser(
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
 
   return `
-  ${heading("Your free consultation is booked")}
+  ${heading("Your free Strategy Call consultation is booked")}
   ${paragraph(`Hi ${name},`)}
   ${paragraph(
     "Thank you for booking a complimentary consultation with Skill Bridge. Your appointment is confirmed — there is nothing to pay.",
@@ -151,7 +151,7 @@ export function freeConsultationThankYouToUser(
     "Your booking",
     `
     ${labeledValue("When", slot)}
-    ${labeledValue("Type", "Free consultation")}
+    ${labeledValue("Type", "Free Strategy Call")}
     `,
   )}
 
@@ -174,10 +174,10 @@ export function freeConsultationNotificationToAdmin(
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
 
   return `
-  ${heading("New free consultation booked")}
+  ${heading("New free Strategy Call booked")}
   ${paragraph("Hi Admin,")}
   ${paragraph(
-    "Someone booked a complimentary Skill Bridge consultation (no payment). Details below:",
+    "Someone booked a complimentary Skill Bridge Strategy Call. Details below:",
   )}
 
   ${section(
@@ -188,7 +188,7 @@ export function freeConsultationNotificationToAdmin(
     ${labeledValue("When", slot)}
     ${labeledValue("Starts", formatUkDateTime(input.startTime, input.timeZone))}
     ${labeledValue("Ends", formatUkDateTime(input.endTime, input.timeZone))}
-    ${labeledValue("Type", "Free consultation")}
+    ${labeledValue("Type", "Free Strategy Call")}
     `,
   )}
 

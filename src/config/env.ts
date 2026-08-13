@@ -46,9 +46,15 @@ export const env = {
     secretKey: process.env.STRIPE_SECRET_KEY ?? "",
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
     prices: {
-      A: process.env.STRIPE_PRICE_A ?? "",
-      B: process.env.STRIPE_PRICE_B ?? "",
-      C: process.env.STRIPE_PRICE_C ?? "",
+      "strategy-call": process.env.STRIPE_PRICE_STRATEGY_CALL_PRICE_ID ?? "",
+      "leadership-enhancement":
+        process.env.STRIPE_PRICE_LEADERSHIP_ENHANCEMENT_PRICE_ID ?? "",
+      "diy-membership": process.env.STRIPE_PRICE_DIY_MEMBERSHIP_PRICE_ID ?? "",
+      "review-only": process.env.STRIPE_PRICE_REVIEW_ONLY_PRICE_ID ?? "",
+      "full-review": process.env.STRIPE_PRICE_FULL_REVIEW_PRICE_ID ?? "",
+      "strategy-session":
+        process.env.STRIPE_PRICE_STRATEGY_SESSION_PRICE_ID ?? "",
+      "bespoke-coaching": process.env.STRIPE_PRICE_BESPOKE_1_TO_1_PRICE_ID ?? "",
     },
   },
   cloudinary: {
