@@ -20,6 +20,20 @@ const availableSlotsQuerySchema = z.object({
   ),
 });
 
+const calendarFreeSchema = z
+  .object({
+    startTime: z.coerce.date(),
+    endTime: z.coerce.date(),
+    name: z.string().trim().min(1),
+    email: z.string().trim().email(),
+    description: z.string().trim().min(1),
+    packageName: z.string().trim().min(1),
+  })
+  .refine((value) => value.endTime > value.startTime, {
+    message: "End time must be after start time",
+    path: ["endTime"],
+  });
+
 const calendarStripeSchema = z
   .object({
     startTime: z.coerce.date(),
@@ -55,6 +69,16 @@ export const CalendarController = {
       const body = calendarStripeSchema.parse(req.body);
       const { url } = await StripeService.createCalendarCheckoutSession(body);
       res.status(201).json({ url });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async bookFree(req: Request, res: Response, next: NextFunction) {
+    try {
+      const body = calendarFreeSchema.parse(req.body);
+      const result = await CalendarService.bookFree(body);
+      res.status(201).json(result);
     } catch (error) {
       next(error);
     }

@@ -4,6 +4,8 @@ import { env } from "../config/env";
 import {
   consultationNotificationToAdmin,
   consultationThankYouToUser,
+  freeConsultationNotificationToAdmin,
+  freeConsultationThankYouToUser,
 } from "../email-templates/consultation";
 import { ConsultationModel } from "../models/consultation.model";
 import { createConsultationId } from "../utils/id";
@@ -33,6 +35,7 @@ const addCalendarSchema = z
     price: z.number().int().nonnegative("Price must be a non-negative integer"),
     stripeSessionId: z.string().trim().min(1).optional().nullable(),
     stripePaymentIntentId: z.string().trim().min(1).optional().nullable(),
+    emailKind: z.enum(["paid", "free"]).optional(),
   })
   .refine((value) => value.endTime > value.startTime, {
     message: "End time must be after start time",
@@ -58,6 +61,16 @@ export type AddCalendarInput = CreateCalendarEventInput & {
   price: number;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
+  emailKind?: "paid" | "free";
+};
+
+export type BookFreeInput = {
+  startTime: Date | string;
+  endTime: Date | string;
+  name: string;
+  email: string;
+  description: string;
+  packageName: string;
 };
 
 export type AddCalendarResult = {
@@ -449,6 +462,7 @@ export const CalendarService = {
       price,
       stripeSessionId,
       stripePaymentIntentId,
+      emailKind,
     } = parsed.data;
 
     const booked = await CalendarService.isTimeSlotBooked(startTime, endTime);
@@ -492,17 +506,26 @@ export const CalendarService = {
       };
 
       try {
+        const isFree = emailKind === "free";
         await sendEmail({
           to: email,
-          subject: "Thank you for booking your Skill Bridge consultation",
-          body: consultationThankYouToUser(emailInput),
+          subject: isFree
+            ? "Your free Skill Bridge consultation is booked"
+            : "Thank you for booking your Skill Bridge consultation",
+          body: isFree
+            ? freeConsultationThankYouToUser(emailInput)
+            : consultationThankYouToUser(emailInput),
         });
 
         if (env.admin.email.trim()) {
           await sendEmail({
             to: env.admin.email,
-            subject: `New consultation booked: ${name}`,
-            body: consultationNotificationToAdmin(emailInput),
+            subject: isFree
+              ? `New free consultation booked: ${name}`
+              : `New consultation booked: ${name}`,
+            body: isFree
+              ? freeConsultationNotificationToAdmin(emailInput)
+              : consultationNotificationToAdmin(emailInput),
           });
         }
       } catch (error) {
@@ -521,6 +544,19 @@ export const CalendarService = {
       }
       throw error;
     }
+  },
+
+  async bookFree(input: BookFreeInput): Promise<AddCalendarResult> {
+    return CalendarService.addCalendar({
+      startTime: input.startTime,
+      endTime: input.endTime,
+      name: input.name,
+      email: input.email,
+      description: input.description,
+      packageName: input.packageName,
+      price: 0,
+      emailKind: "free",
+    });
   },
 };
 

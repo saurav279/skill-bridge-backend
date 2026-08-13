@@ -132,3 +132,71 @@ export function consultationNotificationToAdmin(
   ${paragraph("This is an automated notification from Skill Bridge.")}
   `;
 }
+
+export function freeConsultationThankYouToUser(
+  input: ConsultationEmailInput,
+): string {
+  const name = input.name.trim() || "there";
+  const assessmentUrl = `${env.frontendUrl}/assessment`;
+  const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
+
+  return `
+  ${heading("Your free consultation is booked")}
+  ${paragraph(`Hi ${name},`)}
+  ${paragraph(
+    "Thank you for booking a complimentary consultation with Skill Bridge. Your appointment is confirmed — there is nothing to pay.",
+  )}
+
+  ${section(
+    "Your booking",
+    `
+    ${labeledValue("When", slot)}
+    ${labeledValue("Type", "Free consultation")}
+    `,
+  )}
+
+  ${paragraph(
+    "Before the call, please complete a short assessment. It helps us understand your background so we can make the conversation more useful.",
+  )}
+  ${btnLink(assessmentUrl, "Complete your assessment", "primary")}
+
+  ${input.htmlLink ? btnLink(input.htmlLink, "View calendar event", "link") : ""}
+
+  ${textContent.contact()}
+  `;
+}
+
+export function freeConsultationNotificationToAdmin(
+  input: ConsultationEmailInput,
+): string {
+  const name = input.name.trim() || "Unknown";
+  const email = input.email.trim() || "unknown";
+  const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
+
+  return `
+  ${heading("New free consultation booked")}
+  ${paragraph("Hi Admin,")}
+  ${paragraph(
+    "Someone booked a complimentary Skill Bridge consultation (no payment). Details below:",
+  )}
+
+  ${section(
+    "Consultation details",
+    `
+    ${labeledValue("Name", name)}
+    ${labeledValue("Email", email)}
+    ${labeledValue("When", slot)}
+    ${labeledValue("Starts", formatUkDateTime(input.startTime, input.timeZone))}
+    ${labeledValue("Ends", formatUkDateTime(input.endTime, input.timeZone))}
+    ${labeledValue("Type", "Free consultation")}
+    `,
+  )}
+
+  ${section("Description", descriptionBlock(input.description))}
+
+  ${btnLink(`mailto:${email}`, "Email customer", "primary")}
+  ${input.htmlLink ? btnLink(input.htmlLink, "Open calendar event", "link") : ""}
+
+  ${paragraph("This is an automated notification from Skill Bridge.")}
+  `;
+}
