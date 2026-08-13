@@ -19,3 +19,7 @@ export function createContactMessageId(): string {
 export function createUnsubscribeId(): string {
   return `un_${ulid()}`;
 }
+
+export function createConsultationId(): string {
+  return `cs_${ulid()}`;
+}

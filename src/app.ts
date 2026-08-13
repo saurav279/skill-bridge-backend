@@ -4,6 +4,7 @@ import { env } from "./config/env";
 import { StripeController } from "./controllers/stripe.controller";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import assessmentsRoutes from "./routes/assessments.routes";
+import calendarRoutes from "./routes/calendar.routes";
 import cloudinaryRoutes from "./routes/cloudinary.routes";
 import emailsRoutes from "./routes/emails.routes";
 import s3Routes from "./routes/s3.routes";
@@ -36,6 +37,7 @@ export function createApp() {
 
   app.use("/services/s3", s3Routes);
   app.use("/services/emails", emailsRoutes);
+  app.use("/services/calendar", calendarRoutes);
   app.use("/cloudinary", cloudinaryRoutes);
   app.use("/assessments", assessmentsRoutes);
   app.use("/stripe", stripeRoutes);

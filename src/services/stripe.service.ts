@@ -1,19 +1,21 @@
 import Stripe from "stripe";
 import { env } from "../config/env";
+import { ConsultationModel } from "../models/consultation.model";
 import { PackagePurchaseModel } from "../models/package-purchase.model";
 import { AppError, ValidationError } from "../utils/errors";
 import { createPackagePurchaseId } from "../utils/id";
 import { sendEmail } from "./email.service";
 import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
+import { CalendarService } from "./calendar.service";
 
 export type StripePackageName = "A" | "B" | "C";
 
 const PACKAGE_PURCHASE_TYPE = "package-purchase";
+const CALENDAR_CHECKOUT_TYPE = "stripe-calander";
+const STRIPE_METADATA_MAX_LENGTH = 500;
 
 export type CreateCheckoutSessionInput = {
   packageName: StripePackageName;
-  // customerName: string;
-  // customerEmail: string;
   successUrl: string;
   cancelUrl: string;
 };
@@ -21,6 +23,17 @@ export type CreateCheckoutSessionInput = {
 export type CreateCheckoutSessionResult = {
   sessionId: string;
   url: string;
+};
+
+export type CreateCalendarCheckoutInput = {
+  startTime: Date | string;
+  endTime: Date | string;
+  name: string;
+  email: string;
+  description: string;
+  packageName: StripePackageName;
+  successUrl: string;
+  cancelUrl: string;
 };
 
 function getStripeClient(): Stripe {
@@ -43,6 +56,16 @@ function resolvePriceId(packageName: StripePackageName): string {
     );
   }
   return priceId;
+}
+
+function metadataValue(value: string, field: string): string {
+  const trimmed = value.trim();
+  if (trimmed.length > STRIPE_METADATA_MAX_LENGTH) {
+    throw new ValidationError(
+      `${field} must be at most ${STRIPE_METADATA_MAX_LENGTH} characters`,
+    );
+  }
+  return trimmed;
 }
 
 // function withEmailQuery(url: string, email: string): string {
@@ -76,6 +99,54 @@ export const StripeService = {
         packageName: input.packageName,
         // customerName: input.customerName,
         // customerEmail: input.customerEmail,
+      },
+    });
+
+    if (!session.url) {
+      throw new AppError("Stripe did not return a checkout URL", 500);
+    }
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
+  },
+
+  async createCalendarCheckoutSession(
+    input: CreateCalendarCheckoutInput,
+  ): Promise<CreateCheckoutSessionResult> {
+    const startTime = new Date(input.startTime);
+    const endTime = new Date(input.endTime);
+    if (Number.isNaN(startTime.getTime()) || Number.isNaN(endTime.getTime())) {
+      throw new ValidationError("startTime and endTime must be valid ISO dates");
+    }
+    if (endTime <= startTime) {
+      throw new ValidationError("End time must be after start time");
+    }
+
+    const booked = await CalendarService.isTimeSlotBooked(startTime, endTime);
+    if (booked) {
+      throw new ValidationError("This time slot is already booked");
+    }
+
+    const priceId = resolvePriceId(input.packageName);
+    const stripe = getStripeClient();
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [{ price: priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      customer_email: input.email.trim(),
+      success_url: input.successUrl,
+      cancel_url: input.cancelUrl,
+      metadata: {
+        type: CALENDAR_CHECKOUT_TYPE,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        name: metadataValue(input.name, "name"),
+        email: metadataValue(input.email, "email"),
+        description: metadataValue(input.description, "description"),
+        packageName: input.packageName,
       },
     });
 
@@ -124,7 +195,12 @@ export const StripeService = {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        await this.handlePackagePurchaseCompleted(session);
+        const type = session.metadata?.type;
+        if (type === CALENDAR_CHECKOUT_TYPE) {
+          await this.handleCalendarCheckoutCompleted(session);
+        } else {
+          await this.handlePackagePurchaseCompleted(session);
+        }
         break;
       }
 
@@ -206,5 +282,68 @@ export const StripeService = {
     });
 
     console.log("Package purchase saved:", session.id);
+  },
+
+  async handleCalendarCheckoutCompleted(
+    session: Stripe.Checkout.Session,
+  ): Promise<void> {
+    const existing = await ConsultationModel.findBySessionId(session.id);
+    if (existing) {
+      return;
+    }
+
+    const metadata = session.metadata ?? {};
+    const startTime = metadata.startTime?.trim();
+    const endTime = metadata.endTime?.trim();
+    const name = metadata.name?.trim();
+    const email = metadata.email?.trim();
+    const description = metadata.description?.trim();
+    const packageName = metadata.packageName?.trim();
+
+    if (
+      !startTime ||
+      !endTime ||
+      !name ||
+      !email ||
+      !description ||
+      !packageName
+    ) {
+      console.error(
+        "Calendar checkout metadata missing fields for session:",
+        session.id,
+        metadata,
+      );
+      return;
+    }
+
+    try {
+      await CalendarService.addCalendar({
+        startTime,
+        endTime,
+        name,
+        email,
+        description,
+        packageName,
+        price: session.amount_total ?? 0,
+        stripeSessionId: session.id,
+        stripePaymentIntentId:
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : (session.payment_intent?.id ?? null),
+      });
+      console.log("Calendar consultation booked:", session.id);
+    } catch (error) {
+      if (
+        error instanceof ValidationError &&
+        error.message === "This time slot is already booked"
+      ) {
+        console.error(
+          "Calendar slot already booked after payment for session:",
+          session.id,
+        );
+        return;
+      }
+      throw error;
+    }
   },
 };

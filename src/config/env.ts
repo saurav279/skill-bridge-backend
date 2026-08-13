@@ -61,6 +61,19 @@ export const env = {
   admin: {
     email: process.env.ADMIN_EMAIL ?? "",
   },
+  google: {
+    calendar: {
+      clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL ?? "",
+      privateKey: (
+        process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ??
+        process.env.GOOGLE_SERVICE_ACCOUNT_PRVIATE_KEY ??
+        ""
+      )
+        .replace(/\\n/g, "\n")
+        .replace(/^"|"$/g, ""),
+      timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE ?? "Europe/London",
+    },
+  },
   frontendUrl: (process.env.FRONTEND_URL ?? "http://localhost:3000").replace(
     /\/$/,
     "",
