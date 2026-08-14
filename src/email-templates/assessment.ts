@@ -81,13 +81,14 @@ export function adminAssessmentEmailTemplate({
   resumeLink: string | undefined;
 }): string {
   const name = assessment.customerName?.trim() || "there";
+  const email = assessment.customerEmail?.trim() || "unknown";
   const resultsUrl = `${env.frontendUrl}/assessment/${encodeURIComponent(assessment.id)}`;
 
   return `
   ${heading(`New Assessment Report: ${name}`)}
   ${paragraph(`Hi Admin,`)}
   ${paragraph(
-    `A new assessment report has been generated for ${name}.`,
+    `A new assessment report has been generated for ${name} (${email}).`,
   )}
 
   <div>
