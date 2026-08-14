@@ -12,6 +12,7 @@ import { intakeSchema } from "../utils/intake";
 import { sendEmail } from "./email.service";
 import { sanitizePackageName } from "../types/packages";
 import type { PackageName } from "../types/packages";
+import crypto from "crypto";
 
 const PRIMARY_CALENDAR_ID = "primary";
 const IMPERSONATED_USER = "contact@skillbridgeconsultants.com";
@@ -410,6 +411,7 @@ export const CalendarService = {
     try {
       const { data } = await calendar.events.insert({
         calendarId: PRIMARY_CALENDAR_ID,
+        conferenceDataVersion: 1,
         sendUpdates: "all",
         requestBody: {
           summary: `Package: ${input.packageName} | ${name}`,
@@ -423,6 +425,14 @@ export const CalendarService = {
             timeZone,
           },
           attendees: [{ email, displayName: name }, { email: "contact@skillbridgeconsultants.com", displayName: "Skill Bridge Consultants" }],
+          conferenceData: {
+            createRequest: {
+              requestId: crypto.randomUUID(),
+              conferenceSolutionKey: {
+                type: "hangoutsMeet",
+              },
+            },
+          },
         },
       });
 

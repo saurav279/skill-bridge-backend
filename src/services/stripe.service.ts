@@ -141,6 +141,10 @@ export const StripeService = {
       customer_email: input.email.trim(),
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
+      invoice_creation: {
+        enabled: true,
+      },
+      
       metadata: {
         type: CALENDAR_CHECKOUT_TYPE,
         startTime: startTime.toISOString(),
