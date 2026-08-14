@@ -10,6 +10,26 @@ function requireEnv(name: string, fallback?: string): string {
   return value;
 }
 
+function normalizeGooglePrivateKey(raw: string): string {
+  const value = raw
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .replace(/\\n/g, "\n")
+    .replace(/\r/g, "")
+    .trim();
+
+  if (!value) {
+    return "";
+  }
+
+  const begin = "-----BEGIN PRIVATE KEY-----";
+  const end = "-----END PRIVATE KEY-----";
+  const body = value.replace(begin, "").replace(end, "").replace(/\s+/g, "");
+  const wrapped = body.match(/.{1,64}/g)?.join("\n") ?? body;
+
+  return `${begin}\n${wrapped}\n${end}\n`;
+}
+
 export const env = {
   port: Number(process.env.PORT ?? 3001),
   nodeEnv: process.env.NODE_ENV ?? "development",
@@ -70,13 +90,11 @@ export const env = {
   google: {
     calendar: {
       clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL ?? "",
-      privateKey: (
+      privateKey: normalizeGooglePrivateKey(
         process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ??
-        process.env.GOOGLE_SERVICE_ACCOUNT_PRVIATE_KEY ??
-        ""
-      )
-        .replace(/\\n/g, "\n")
-        .replace(/^"|"$/g, ""),
+          process.env.GOOGLE_SERVICE_ACCOUNT_PRVIATE_KEY ??
+          "",
+      ),
       timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE ?? "Europe/London",
     },
   },
