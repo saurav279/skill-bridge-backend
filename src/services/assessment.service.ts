@@ -54,6 +54,51 @@ function extractPhone(payload: AssessPayload): string | null {
   return null;
 }
 
+function extractLivesInUk(personal: unknown): boolean | undefined {
+  if (!isPlainObject(personal)) {
+    return undefined;
+  }
+  if (typeof personal.livesInUk === "boolean") {
+    return personal.livesInUk;
+  }
+  if (personal.personalDetails_livesInUk === "Yes") {
+    return true;
+  }
+  if (personal.personalDetails_livesInUk === "No") {
+    return false;
+  }
+  return undefined;
+}
+
+function extractCurrentVisa(personal: unknown): string | undefined {
+  if (!isPlainObject(personal)) {
+    return undefined;
+  }
+  if (typeof personal.currentVisa === "string" && personal.currentVisa.trim()) {
+    return personal.currentVisa.trim();
+  }
+  const visa = personal.personalDetails_ukVisa;
+  if (visa === "Others") {
+    const other = personal.personalDetails_ukVisaOther;
+    return typeof other === "string" && other.trim() ? other.trim() : undefined;
+  }
+  if (typeof visa === "string" && visa.trim()) {
+    return visa.trim();
+  }
+  return undefined;
+}
+function extractCustomerPhone(personal: unknown): string | undefined {
+  if (!isPlainObject(personal)) {
+    return undefined;
+  }
+  if (typeof personal.phone === "string" && personal.phone.trim()) {
+    return personal.phone.trim();
+  }
+  if (typeof personal.personalDetails_phone === "string" && personal.personalDetails_phone.trim()) {
+    return personal.personalDetails_phone.trim();
+  }
+  return undefined;
+}
 function extractResumeLink(payload: AssessPayload): string | null {
   const topLevel = payload.resumeLink;
   if (typeof topLevel === "string" && topLevel.trim()) {
@@ -101,15 +146,27 @@ export const AssessmentService = {
     return report;
   },
 
-  async getById(id: string): Promise<Assessment & { createdAt: string }> {
+  async getById(id: string): Promise<
+    Assessment & {
+      createdAt: string;
+      customerLivesInUk?: boolean;
+      customerPhone?: string;
+      customerCurrentVisa?: string;
+    }
+  > {
     const row = await AssessmentModel.findById(id);
 
     if (!row) {
       throw new NotFoundError(`Assessment not found: ${id}`);
     }
+
+    const personal = row.payload?.personalDetails;
     return {
       ...row.report,
       createdAt: row.created_at as string,
+      customerLivesInUk: extractLivesInUk(personal),
+      customerCurrentVisa: extractCurrentVisa(personal),
+      customerPhone: extractCustomerPhone(personal),
     };
   },
 
