@@ -84,4 +84,7 @@ export const env = {
     /\/$/,
     "",
   ),
+  test:{
+    noLLM: process.env.DEV_NO_LLM === "true",
+  }
 };

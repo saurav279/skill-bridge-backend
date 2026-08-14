@@ -10,6 +10,10 @@ import { sendEmail } from "./email.service";
 export type ContactUsInput = {
   name: string;
   email: string;
+  phone: string;
+  livesInUk: boolean;
+  currentVisa?: string;
+  prefered: "phone" | "google_meet";
   subject: string;
   message: string;
 };
@@ -20,6 +24,10 @@ export const ContactService = {
       id: createContactMessageId(),
       name: input.name,
       email: input.email,
+      phone: input.phone,
+      livesInUk: input.livesInUk,
+      currentVisa: input.currentVisa ?? null,
+      prefered: input.prefered,
       subject: input.subject,
       message: input.message,
     });
@@ -27,6 +35,10 @@ export const ContactService = {
     const templateInput = {
       name: input.name,
       email: input.email,
+      phone: input.phone,
+      livesInUk: input.livesInUk,
+      currentVisa: input.currentVisa,
+      prefered: input.prefered,
       subject: input.subject,
       message: input.message,
     };

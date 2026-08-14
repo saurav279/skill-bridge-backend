@@ -36,8 +36,26 @@ function validatePayload(payload: AssessPayload): void {
   }
 }
 
-function extractResumeFileId(payload: AssessPayload): string | null {
-  const topLevel = payload.resumeFileId;
+function extractPhone(payload: AssessPayload): string | null {
+  const personal = payload.personalDetails;
+  if (!isPlainObject(personal)) {
+    return null;
+  }
+
+  if (typeof personal.phone === "string" && personal.phone.trim()) {
+    return personal.phone.trim();
+  }
+  if (
+    typeof personal.personalDetails_phone === "string" &&
+    personal.personalDetails_phone.trim()
+  ) {
+    return personal.personalDetails_phone.trim();
+  }
+  return null;
+}
+
+function extractResumeLink(payload: AssessPayload): string | null {
+  const topLevel = payload.resumeLink;
   if (typeof topLevel === "string" && topLevel.trim()) {
     return topLevel.trim();
   }
@@ -47,19 +65,17 @@ function extractResumeFileId(payload: AssessPayload): string | null {
 export const AssessmentService = {
   async create(
     payload: AssessPayload,
-    resumeFileId?: string | null,
+    resumeLink?: string | null,
   ): Promise<Assessment> {
     validatePayload(payload);
 
-    const storedResumeFileId =
-      resumeFileId?.trim() || extractResumeFileId(payload);
+    const storedResumeLink = resumeLink?.trim() || extractResumeLink(payload);
 
     let resume;
-    if (storedResumeFileId) {
-      // resume = await S3Service.getResumeContent(storedResumeFileId);
-      resume = await S3Service.getResumeContentFromCloudinary(storedResumeFileId);
+    if (storedResumeLink) {
+      resume =
+        await S3Service.getResumeContentFromCloudinary(storedResumeLink);
     }
-
 
     const id = createAssessmentId();
     const createdAt = new Date().toISOString();
@@ -75,7 +91,8 @@ export const AssessmentService = {
       routeId: payload.routeId,
       contactName: report.customerName,
       contactEmail: report.customerEmail,
-      // resumeFileId: storedResumeFileId, TODo: enable when we will integrate AWS S3
+      phone: extractPhone(payload),
+      resumeLink: storedResumeLink,
       payload,
       report,
       confidenceScore: report.confidenceScore,

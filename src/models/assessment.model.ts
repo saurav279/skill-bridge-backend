@@ -9,7 +9,8 @@ export type AssessmentRow = {
   route_id: string;
   contact_name: string | null;
   contact_email: string | null;
-  resume_file_id: string | null;
+  phone: string | null;
+  resume_link: string | null;
   payload: AssessPayload;
   report: Assessment;
   confidence_score: number;
@@ -22,7 +23,8 @@ export type CreateAssessmentInput = {
   routeId: string;
   contactName?: string;
   contactEmail?: string;
-  resumeFileId?: string | null;
+  phone?: string | null;
+  resumeLink?: string | null;
   payload: AssessPayload;
   report: Assessment;
   confidenceScore: number;
@@ -38,7 +40,8 @@ export const AssessmentModel = {
         route_id: input.routeId,
         contact_name: input.contactName ?? null,
         contact_email: input.contactEmail ?? null,
-        resume_file_id: input.resumeFileId ?? null,
+        phone: input.phone ?? null,
+        resume_link: input.resumeLink ?? null,
         payload: input.payload,
         report: input.report,
         confidence_score: input.confidenceScore,

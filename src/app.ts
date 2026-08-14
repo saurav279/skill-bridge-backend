@@ -41,8 +41,8 @@ export function createApp() {
   app.use("/cloudinary", cloudinaryRoutes);
   app.use("/assessments", assessmentsRoutes);
   app.use("/stripe", stripeRoutes);
-  app.use("/public", publicRoutes);
-  app.use(notFoundHandler);
+  app.use("/public", publicRoutes); //working perfectly
+  app.use(notFoundHandler)
   app.use(errorHandler);
 
   return app;

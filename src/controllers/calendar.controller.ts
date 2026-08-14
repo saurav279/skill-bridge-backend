@@ -3,6 +3,7 @@ import { z } from "zod";
 import { CalendarService } from "../services/calendar.service";
 import { StripeService } from "../services/stripe.service";
 import { PACKAGE_NAMES } from "../types/packages";
+import { intakeSchema } from "../utils/intake";
 
 const availableSlotsQuerySchema = z.object({
   date: z
@@ -21,20 +22,6 @@ const availableSlotsQuerySchema = z.object({
   ),
 });
 
-const calendarFreeSchema = z
-  .object({
-    startTime: z.coerce.date(),
-    endTime: z.coerce.date(),
-    name: z.string().trim().min(1),
-    email: z.string().trim().email(),
-    description: z.string().trim().min(1),
-    packageName: z.string().trim().min(1),
-  })
-  .refine((value) => value.endTime > value.startTime, {
-    message: "End time must be after start time",
-    path: ["endTime"],
-  });
-
 const calendarStripeSchema = z
   .object({
     startTime: z.coerce.date(),
@@ -46,6 +33,7 @@ const calendarStripeSchema = z
     successUrl: z.string().url(),
     cancelUrl: z.string().url(),
   })
+  .and(intakeSchema)
   .refine((value) => value.endTime > value.startTime, {
     message: "End time must be after start time",
     path: ["endTime"],
@@ -69,17 +57,7 @@ export const CalendarController = {
     try {
       const body = calendarStripeSchema.parse(req.body);
       const { url } = await StripeService.createCalendarCheckoutSession(body);
-      res.status(201).json({ url });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async bookFree(req: Request, res: Response, next: NextFunction) {
-    try {
-      const body = calendarFreeSchema.parse(req.body);
-      const result = await CalendarService.bookFree(body);
-      res.status(201).json(result);
+      res.status(200).json({ url });
     } catch (error) {
       next(error);
     }

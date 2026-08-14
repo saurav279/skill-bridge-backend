@@ -29,6 +29,9 @@ export type CreateCalendarCheckoutInput = {
   endTime: Date | string;
   name: string;
   email: string;
+  phone: string;
+  livesInUk: boolean;
+  currentVisa?: string;
   description: string;
   packageName: PackageName;
   successUrl: string;
@@ -144,6 +147,11 @@ export const StripeService = {
         endTime: endTime.toISOString(),
         name: metadataValue(input.name, "name"),
         email: metadataValue(input.email, "email"),
+        phone: metadataValue(input.phone, "phone"),
+        livesInUk: input.livesInUk ? "true" : "false",
+        ...(input.currentVisa
+          ? { currentVisa: metadataValue(input.currentVisa, "currentVisa") }
+          : {}),
         description: metadataValue(input.description, "description"),
         packageName: input.packageName,
       },
@@ -298,12 +306,16 @@ export const StripeService = {
     const email = metadata.email?.trim();
     const description = metadata.description?.trim();
     const packageName = metadata.packageName?.trim();
+    const phone = metadata.phone?.trim();
+    const livesInUk = metadata.livesInUk === "true";
+    const currentVisa = metadata.currentVisa?.trim() || undefined;
 
     if (
       !startTime ||
       !endTime ||
       !name ||
       !email ||
+      !phone ||
       !description ||
       !packageName
     ) {
@@ -321,6 +333,9 @@ export const StripeService = {
         endTime,
         name,
         email,
+        phone,
+        livesInUk,
+        currentVisa,
         description,
         packageName,
         price: session.amount_total ?? 0,

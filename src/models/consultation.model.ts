@@ -4,6 +4,9 @@ export type ConsultationRow = {
   id: string;
   name: string;
   email: string;
+  phone: string;
+  lives_in_uk: boolean;
+  current_visa: string | null;
   start_time: Date | string;
   end_time: Date | string;
   package_name: string;
@@ -19,6 +22,9 @@ export type CreateConsultationInput = {
   id: string;
   name: string;
   email: string;
+  phone: string;
+  livesInUk: boolean;
+  currentVisa?: string | null;
   startTime: Date;
   endTime: Date;
   packageName: string;
@@ -37,6 +43,9 @@ export const ConsultationModel = {
         id: input.id,
         name: input.name,
         email: input.email,
+        phone: input.phone,
+        lives_in_uk: input.livesInUk,
+        current_visa: input.currentVisa ?? null,
         start_time: input.startTime,
         end_time: input.endTime,
         package_name: input.packageName,

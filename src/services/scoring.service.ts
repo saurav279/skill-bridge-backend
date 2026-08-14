@@ -53,6 +53,9 @@ function isSectionAnswers(value: unknown): value is AssessSectionAnswers {
 function customerFromPayload(payload: AssessPayload): {
   customerName?: string;
   customerEmail?: string;
+  phone?: string | null;
+  livesInUk?: boolean | null;
+  currentVisa?: string | null;
 } {
   const personal = payload.personalDetails;
   if (!isSectionAnswers(personal)) return {};
@@ -60,11 +63,50 @@ function customerFromPayload(payload: AssessPayload): {
   const name = personal.personalDetails_name;
   const email = personal.personalDetails_email;
 
+  let phone: string | null = null;
+  if (typeof personal.phone === "string" && personal.phone.trim()) {
+    phone = personal.phone.trim();
+  } else if (
+    typeof personal.personalDetails_phone === "string" &&
+    personal.personalDetails_phone.trim()
+  ) {
+    phone = personal.personalDetails_phone.trim();
+  }
+
+  let livesInUk: boolean | null = null;
+  if (typeof personal.livesInUk === "boolean") {
+    livesInUk = personal.livesInUk;
+  } else if (personal.personalDetails_livesInUk === "Yes") {
+    livesInUk = true;
+  } else if (personal.personalDetails_livesInUk === "No") {
+    livesInUk = false;
+  }
+
+  let currentVisa: string | null = null;
+  if (livesInUk) {
+    if (typeof personal.currentVisa === "string" && personal.currentVisa.trim()) {
+      currentVisa = personal.currentVisa.trim();
+    } else if (personal.personalDetails_ukVisa === "Others") {
+      const other = personal.personalDetails_ukVisaOther;
+      if (typeof other === "string" && other.trim()) {
+        currentVisa = other.trim();
+      }
+    } else if (
+      typeof personal.personalDetails_ukVisa === "string" &&
+      personal.personalDetails_ukVisa.trim()
+    ) {
+      currentVisa = personal.personalDetails_ukVisa.trim();
+    }
+  }
+
   return {
     customerName:
       typeof name === "string" && name.trim() ? name.trim() : undefined,
     customerEmail:
       typeof email === "string" && email.trim() ? email.trim() : undefined,
+    phone,
+    livesInUk,
+    currentVisa,
   };
 }
 
@@ -394,6 +436,10 @@ export async function buildAssessmentReport(
           "personalised guidance string; not a visa/endorsement guarantee (never null)",
       },
     };
+
+    if (env.test.noLLM) {
+      return buildFallbackReport(input);
+    }
 
     const raw = await chatCompletionJson({
       route: payload.routeId,

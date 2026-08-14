@@ -1,4 +1,5 @@
 import { env } from "../config/env";
+import { formatCurrentVisa, formatLivesInUk } from "../utils/intake";
 import {
   btnLink,
   escapeHtml,
@@ -12,6 +13,9 @@ import {
 export type ConsultationEmailInput = {
   name: string;
   email: string;
+  phone: string;
+  livesInUk: boolean;
+  currentVisa?: string | null;
   description: string;
   packageName: string;
   price: number;
@@ -74,10 +78,10 @@ export function consultationThankYouToUser(
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
 
   return `
-  ${heading("Thank you for booking a Paid Strategy Call")}
+  ${heading(`Thank you for purchasing a Package ${input.packageName} and initial call`) }
   ${paragraph(`Hi ${name},`)}
   ${paragraph(
-    "Thank you for booking a Paid Strategy Call with Skill Bridge. Your appointment is confirmed.",
+    `Thank you for purchasing a Package ${input.packageName} and initial call with Skill Bridge. Your appointment is confirmed.`,
   )}
 
   ${section(
@@ -85,6 +89,7 @@ export function consultationThankYouToUser(
     `
     ${labeledValue("When", slot)}
     ${labeledValue("Package", input.packageName)}
+
     `,
   )}
 
@@ -107,18 +112,19 @@ export function consultationNotificationToAdmin(
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
 
   return `
-  ${heading("New Paid Strategy Call booked")}
+  ${heading(`New Package ${input.packageName} is purchased and initial call booked`) }
   ${paragraph("Hi Admin,")}
-  ${paragraph("Someone booked a Skill Bridge Paid Strategy Call. Details below:")}
+  ${paragraph(`Someone booked a Package ${input.packageName} and initial call with Skill Bridge. Details below:`) }
 
   ${section(
     "Consultation details",
     `
     ${labeledValue("Name", name)}
     ${labeledValue("Email", email)}
+    ${labeledValue("Phone", input.phone)}
+    ${labeledValue("Lives in UK", formatLivesInUk(input.livesInUk))}
+    ${labeledValue("Current visa", formatCurrentVisa(input.livesInUk, input.currentVisa))}
     ${labeledValue("When", slot)}
-    ${labeledValue("Starts", formatUkDateTime(input.startTime, input.timeZone))}
-    ${labeledValue("Ends", formatUkDateTime(input.endTime, input.timeZone))}
     ${labeledValue("Package", input.packageName)}
     ${labeledValue("Amount paid", formatAmount(input.price))}
     `,

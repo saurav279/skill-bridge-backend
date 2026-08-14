@@ -1,9 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
+import { env } from "../config/env";
 import { AssessmentService } from "../services/assessment.service";
 import type { AssessPayload } from "../types/assessment";
 import { sendEmail } from "../services/email.service";
-import { assessmentEmailTemplate } from "../email-templates/assessment";
+import {
+  adminAssessmentEmailTemplate,
+  assessmentEmailTemplate,
+} from "../email-templates/assessment";
 
 const fileMetaSchema = z.object({
   name: z.string(),
@@ -23,7 +27,7 @@ const sectionSchema = z.record(z.string(), answerValueSchema);
 const createAssessmentSchema = z
   .object({
     routeId: z.enum(["digital-technology", "academia", "arts"]),
-    resumeFileId: z.string().min(1).optional().nullable(),
+    resumeLink: z.string().min(1).optional().nullable(),
 
   })
   .catchall(z.union([z.string(), sectionSchema]));
@@ -36,21 +40,81 @@ const emailBodySchema = z.object({
   email: z.string().email().optional(),
 });
 
+function stringField(
+  personal: unknown,
+  key: string,
+): string | undefined {
+  if (!personal || typeof personal !== "object" || Array.isArray(personal)) {
+    return undefined;
+  }
+  const value = (personal as Record<string, unknown>)[key];
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+  return undefined;
+}
+
+function currentVisaFromPersonal(personal: unknown): string | undefined {
+  const normalized = stringField(personal, "currentVisa");
+  if (normalized) {
+    return normalized;
+  }
+  const visa = stringField(personal, "personalDetails_ukVisa");
+  if (!visa || visa === "Others") {
+    return stringField(personal, "personalDetails_ukVisaOther");
+  }
+  return visa;
+}
+
+function livesInUkFromPersonal(personal: unknown): string | undefined {
+  const raw = stringField(personal, "personalDetails_livesInUk");
+  if (raw) {
+    return raw;
+  }
+  if (!personal || typeof personal !== "object" || Array.isArray(personal)) {
+    return undefined;
+  }
+  const livesInUk = (personal as Record<string, unknown>).livesInUk;
+  if (typeof livesInUk === "boolean") {
+    return livesInUk ? "Yes" : "No";
+  }
+  return undefined;
+}
+
 export const AssessmentsController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
 
       const body = createAssessmentSchema.parse(req.body);
-      const { resumeFileId, ...rest } = body;  
+      const { resumeLink, ...rest } = body;
       const payload = rest as AssessPayload;
-      const report = await AssessmentService.create(payload, resumeFileId);
+      const report = await AssessmentService.create(payload, resumeLink);
 
-      //send email to the user
+      const personal = payload.personalDetails;
+      const livesInUK = livesInUkFromPersonal(personal);
+      const currentVisa = currentVisaFromPersonal(personal);
+      const storedResumeLink =
+        resumeLink?.trim() ||
+        (typeof payload.resumeLink === "string" ? payload.resumeLink : undefined);
+
       if (report.customerEmail) {
         await sendEmail({
-          to: report.customerEmail as string,
+          to: report.customerEmail,
           subject: "Your Skill Bridge Assessment Report",
           body: assessmentEmailTemplate(report),
+        });
+      }
+
+      if (env.admin.email.trim()) {
+        await sendEmail({
+          to: env.admin.email,
+          subject: "New Assessment Report",
+          body: adminAssessmentEmailTemplate({
+            assessment: report,
+            livesInUK,
+            currentVisa,
+            resumeLink: storedResumeLink,
+          }),
         });
       }
       res.status(201).json(report);

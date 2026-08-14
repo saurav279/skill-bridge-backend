@@ -4,13 +4,14 @@ import { env } from "../config/env";
 import {
   consultationNotificationToAdmin,
   consultationThankYouToUser,
-  freeConsultationNotificationToAdmin,
-  freeConsultationThankYouToUser,
 } from "../email-templates/consultation";
 import { ConsultationModel } from "../models/consultation.model";
 import { createConsultationId } from "../utils/id";
 import { AppError, ValidationError } from "../utils/errors";
+import { intakeSchema } from "../utils/intake";
 import { sendEmail } from "./email.service";
+import { sanitizePackageName } from "../types/packages";
+import type { PackageName } from "../types/packages";
 
 const PRIMARY_CALENDAR_ID = "primary";
 const IMPERSONATED_USER = "contact@skillbridgeconsultants.com";
@@ -35,8 +36,8 @@ const addCalendarSchema = z
     price: z.number().int().nonnegative("Price must be a non-negative integer"),
     stripeSessionId: z.string().trim().min(1).optional().nullable(),
     stripePaymentIntentId: z.string().trim().min(1).optional().nullable(),
-    emailKind: z.enum(["paid", "free"]).optional(),
   })
+  .and(intakeSchema)
   .refine((value) => value.endTime > value.startTime, {
     message: "End time must be after start time",
     path: ["endTime"],
@@ -59,18 +60,11 @@ export type CreateCalendarEventResult = {
 export type AddCalendarInput = CreateCalendarEventInput & {
   packageName: string;
   price: number;
+  phone: string;
+  livesInUk: boolean;
+  currentVisa?: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
-  emailKind?: "paid" | "free";
-};
-
-export type BookFreeInput = {
-  startTime: Date | string;
-  endTime: Date | string;
-  name: string;
-  email: string;
-  description: string;
-  packageName: string;
 };
 
 export type AddCalendarResult = {
@@ -418,10 +412,7 @@ export const CalendarService = {
         calendarId: PRIMARY_CALENDAR_ID,
         sendUpdates: "all",
         requestBody: {
-          summary: `${input.packageName
-            .split("-")
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ")} | ${name}`,
+          summary: `Package: ${input.packageName} | ${name}`,
           description,
           start: {
             dateTime: start.toISOString(),
@@ -460,12 +451,14 @@ export const CalendarService = {
       endTime,
       name,
       email,
+      phone,
+      livesInUk,
+      currentVisa,
       description,
       packageName,
       price,
       stripeSessionId,
       stripePaymentIntentId,
-      emailKind,
     } = parsed.data;
 
     const booked = await CalendarService.isTimeSlotBooked(startTime, endTime);
@@ -479,7 +472,7 @@ export const CalendarService = {
       name,
       email,
       description,
-      packageName
+      packageName:sanitizePackageName(packageName as PackageName)
     });
 
     try {
@@ -487,6 +480,9 @@ export const CalendarService = {
         id: createConsultationId(),
         name,
         email,
+        phone,
+        livesInUk,
+        currentVisa: currentVisa ?? null,
         startTime,
         endTime,
         packageName,
@@ -499,8 +495,11 @@ export const CalendarService = {
       const emailInput = {
         name,
         email,
+        phone,
+        livesInUk,
+        currentVisa,
         description,
-        packageName,
+        packageName:sanitizePackageName(packageName as PackageName),
         price,
         startTime,
         endTime,
@@ -509,26 +508,17 @@ export const CalendarService = {
       };
 
       try {
-        const isFree = emailKind === "free";
         await sendEmail({
           to: email,
-          subject: isFree
-            ? "Your free Skill Bridge Strategy Call is booked"
-            : "Your paid Skill Bridge Strategy Call is booked",
-          body: isFree
-            ? freeConsultationThankYouToUser(emailInput)
-            : consultationThankYouToUser(emailInput),
+          subject: `Your Package ${emailInput.packageName} is purchased and initial call booked`,
+          body: consultationThankYouToUser(emailInput),
         });
 
         if (env.admin.email.trim()) {
           await sendEmail({
             to: env.admin.email,
-            subject: isFree
-              ? `New free Strategy Call booked: ${name}`
-              : `New Paid Strategy Call booked: ${name}`,
-            body: isFree
-              ? freeConsultationNotificationToAdmin(emailInput)
-              : consultationNotificationToAdmin(emailInput),
+            subject: `New Package ${emailInput.packageName} is purchased and initial call booked : ${name}`,
+            body: consultationNotificationToAdmin(emailInput),
           });
         }
       } catch (error) {
@@ -547,19 +537,6 @@ export const CalendarService = {
       }
       throw error;
     }
-  },
-
-  async bookFree(input: BookFreeInput): Promise<AddCalendarResult> {
-    return CalendarService.addCalendar({
-      startTime: input.startTime,
-      endTime: input.endTime,
-      name: input.name,
-      email: input.email,
-      description: input.description,
-      packageName: input.packageName,
-      price: 0,
-      emailKind: "free",
-    });
   },
 };
 

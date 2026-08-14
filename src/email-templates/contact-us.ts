@@ -7,10 +7,15 @@ import {
   section,
   textContent,
 } from "./helpers";
+import { formatCurrentVisa, formatLivesInUk } from "../utils/intake";
 
 export type ContactUsEmailInput = {
   name: string;
   email: string;
+  phone: string;
+  livesInUk: boolean;
+  currentVisa?: string | null;
+  prefered: "phone" | "google_meet";
   subject: string;
   message: string;
 };
@@ -18,6 +23,10 @@ export type ContactUsEmailInput = {
 function messageBlock(message: string): string {
   const safe = escapeHtml(message.trim() || "-").replaceAll("\n", "<br>");
   return `<p>${safe}</p>`;
+}
+
+function formatPrefered(prefered: "phone" | "google_meet"): string {
+  return prefered === "phone" ? "Phone" : "Google Meet";
 }
 
 export function contactUsThankYouToUser(input: ContactUsEmailInput): string {
@@ -66,6 +75,10 @@ export function contactUsNotificationToAdmin(
     `
     ${labeledValue("Name", name)}
     ${labeledValue("Email", email)}
+    ${labeledValue("Phone", input.phone)}
+    ${labeledValue("Lives in UK", formatLivesInUk(input.livesInUk))}
+    ${labeledValue("Current visa", formatCurrentVisa(input.livesInUk, input.currentVisa))}
+    ${labeledValue("Preferred contact", formatPrefered(input.prefered))}
     ${labeledValue("Subject", subject)}
     `,
   )}

@@ -12,7 +12,7 @@ alwaysApply: false
 - `GET /assessments/:id` → same full flat report JSON
 - `POST /services/emails/assessments/:id` → sends via Nodemailer → `{ "message": "Assessment email sent." }`
 - `POST /services/s3/upload` (multipart field `file`, PDF) → `{ id, originalName, mimeType, size }`
-- `POST /assessments` may include optional `resumeFileId` (FK to `s3_files.id`); backend loads PDF via signed URL before LLM
+- `POST /assessments` may include optional `resumeLink` (Cloudinary URL); backend loads the PDF before the LLM
 
 ## Report fields (only these)
 

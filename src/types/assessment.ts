@@ -10,7 +10,7 @@ export type FileMeta = { name: string; size: number; type: string };
  * radio | chips (single) | text → string
  * file → FileMeta | []
  */
-export type AnswerValue = string | string[] | FileMeta | [];
+export type AnswerValue = string | string[] 
 
 /** Keys are always `{sectionId}_{questionId}` */
 export type AssessSectionAnswers = Record<string, AnswerValue>;
@@ -18,12 +18,12 @@ export type AssessSectionAnswers = Record<string, AnswerValue>;
 /**
  * Top-level keys:
  * - routeId: string
- * - resumeFileId?: string (optional; also accepted beside payload)
+ * - resumeLink?: string (optional Cloudinary URL; also accepted beside payload)
  * - one object per section (9 sections)
  */
 export type AssessPayload = {
   routeId: RouteId;
-  resumeFileId?: string;
+  resumeLink?: string;
   [sectionId: string]: string | AssessSectionAnswers | undefined;
 };
 
