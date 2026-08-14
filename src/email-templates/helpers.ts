@@ -1,4 +1,5 @@
 import { env } from "../config/env";
+import { AssessmentModel } from "../models/assessment.model";
 
 export type BtnVariant = "primary" | "link";
 
@@ -95,4 +96,19 @@ export const textContent = {
     const email = extractEmailAddress(env.smtp.user);
     return `<p>If you have any questions or feedback, please contact us at <a href="mailto:${escapeHtml(email)}" class="btn btn-link">${escapeHtml(email)}</a>.</p>`;
   },
+};
+
+
+export const getAssessmentBtnFromEmail = async (email: string): Promise<string> => {
+  const { id, resumeLink } = await AssessmentModel.findByEmail(email);
+  if (!id) {
+    return "";
+  }
+  const assessmentUrl = `${env.frontendUrl}/assessment/${encodeURIComponent(id)}`;
+  const assessmentBtn = btnLink(assessmentUrl, "User Assessment Results", "primary");
+  const resumeBtn = resumeLink
+    ? btnLink(resumeLink, "View Resume", "link")
+    : "";
+
+  return `${assessmentBtn}${resumeBtn}`;
 };

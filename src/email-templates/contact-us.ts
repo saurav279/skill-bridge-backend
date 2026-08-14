@@ -8,6 +8,7 @@ import {
   textContent,
 } from "./helpers";
 import { formatCurrentVisa, formatLivesInUk } from "../utils/intake";
+import { env } from "../config/env";
 
 export type ContactUsEmailInput = {
   name: string;
@@ -32,9 +33,11 @@ function formatPrefered(prefered: "phone" | "google_meet"): string {
 export function contactUsThankYouToUser(input: ContactUsEmailInput): string {
   const name = input.name.trim() || "there";
   const subject = input.subject.trim() || "your enquiry";
+  const strategyCallUrl = `${env.frontendUrl}/packages/strategy-call`;
+
 
   return `
-  ${heading("Thanks for contacting us")}
+  ${heading(`Re: ${subject}`)}
   ${paragraph(`Hi ${name},`)}
   ${paragraph(
     "Thank you for reaching out to Skill Bridge. We have received your message and will get back to you within five business day.",
@@ -49,8 +52,9 @@ export function contactUsThankYouToUser(input: ContactUsEmailInput): string {
   )}
 
   ${paragraph(
-    "In the meantime, if you need to add anything, simply reply to this email or use the contact details below.",
+    " Need personalised guidance sooner? Book a 1:1 strategy call and get your personalized slot to discuss your assessment, explore your UK options, and get clear on your next steps with our team.",
   )}
+  ${btnLink(strategyCallUrl, "Book a strategy call", "primary")}
 
   ${textContent.contact()}
   `;

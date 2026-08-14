@@ -45,7 +45,7 @@ export const ContactService = {
 
     await sendEmail({
       to: input.email,
-      subject: "Thank you for contacting Skill Bridge",
+      subject: `Re: ${input.subject.trim()}`,
       body: contactUsThankYouToUser(templateInput),
     });
 

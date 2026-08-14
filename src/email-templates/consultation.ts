@@ -3,6 +3,7 @@ import { formatCurrentVisa, formatLivesInUk } from "../utils/intake";
 import {
   btnLink,
   escapeHtml,
+  getAssessmentBtnFromEmail,
   heading,
   labeledValue,
   paragraph,
@@ -104,12 +105,13 @@ export function consultationThankYouToUser(
   `;
 }
 
-export function consultationNotificationToAdmin(
+export async function consultationNotificationToAdmin(
   input: ConsultationEmailInput,
-): string {
+): Promise<string> {
   const name = input.name.trim() || "Unknown";
   const email = input.email.trim() || "unknown";
   const slot = formatSlotRange(input.startTime, input.endTime, input.timeZone);
+  const assessmentBtn = await getAssessmentBtnFromEmail(email);
 
   return `
   ${heading(`New Package ${input.packageName} is purchased and initial call booked`) }
@@ -134,6 +136,7 @@ export function consultationNotificationToAdmin(
 
   ${btnLink(`mailto:${email}`, "Email customer", "primary")}
   ${input.htmlLink ? btnLink(input.htmlLink, "Open calendar event", "link") : ""}
+  ${assessmentBtn}
 
   ${paragraph("This is an automated notification from Skill Bridge.")}
   `;

@@ -518,7 +518,7 @@ export const CalendarService = {
           await sendEmail({
             to: env.admin.email,
             subject: `New Package ${emailInput.packageName} is purchased and initial call booked : ${name}`,
-            body: consultationNotificationToAdmin(emailInput),
+            body: await consultationNotificationToAdmin(emailInput),
           });
         }
       } catch (error) {

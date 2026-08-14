@@ -54,6 +54,13 @@ export const AssessmentModel = {
   async findById(id: string): Promise<AssessmentRow | undefined> {
     return db<AssessmentRow>(TABLE).where({ id }).first();
   },
+  async findByEmail(email: string): Promise<{ id: string | undefined; resumeLink: string | undefined }> {
+    const result = await db<AssessmentRow>(TABLE).where({ contact_email: email }).first().select("id","resume_link").orderBy("created_at", "desc");
+    return {
+      id: result?.id ?? undefined,
+      resumeLink: result?.resume_link ?? undefined,
+    };
+  },
 
   async updateReport(
     id: string,
