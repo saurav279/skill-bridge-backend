@@ -76,6 +76,15 @@ export const env = {
         process.env.STRIPE_PRICE_STRATEGY_SESSION_PRICE_ID ?? "",
       "bespoke-coaching": process.env.STRIPE_PRICE_BESPOKE_1_TO_1_PRICE_ID ?? "",
     },
+    allowKlarns:{
+      "strategy-call": "false",
+      "leadership-enhancement": "true",
+      "diy-membership": "true",
+      "review-only": "true",
+      "full-review": "true",
+      "strategy-session": "true",
+      "bespoke-coaching": "true",
+    }
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",

@@ -133,6 +133,7 @@ export const StripeService = {
 
     const priceId = resolvePriceId(input.packageName);
     const stripe = getStripeClient();
+   
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -144,6 +145,9 @@ export const StripeService = {
       invoice_creation: {
         enabled: true,
       },
+      payment_method_configuration: env.stripe.allowKlarns[input.packageName] === "true"
+      ? "pmc_with_klarna"
+      : "pmc_without_klarna",
       
       metadata: {
         type: CALENDAR_CHECKOUT_TYPE,

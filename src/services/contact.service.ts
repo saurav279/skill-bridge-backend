@@ -53,7 +53,7 @@ export const ContactService = {
       await sendEmail({
         to: env.admin.email,
         subject: `New contact enquiry: ${input.subject.trim() || "No subject"}`,
-        body: contactUsNotificationToAdmin(templateInput),
+        body: await contactUsNotificationToAdmin(templateInput),
       });
     }
 

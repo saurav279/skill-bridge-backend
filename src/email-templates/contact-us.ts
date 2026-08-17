@@ -1,6 +1,7 @@
 import {
   btnLink,
   escapeHtml,
+  getAssessmentBtnFromEmail,
   heading,
   labeledValue,
   paragraph,
@@ -60,12 +61,13 @@ export function contactUsThankYouToUser(input: ContactUsEmailInput): string {
   `;
 }
 
-export function contactUsNotificationToAdmin(
+export async function contactUsNotificationToAdmin(
   input: ContactUsEmailInput,
-): string {
+): Promise<string> {
   const name = input.name.trim() || "Unknown";
   const email = input.email.trim() || "unknown";
   const subject = input.subject.trim() || "-";
+  const assessmentBtn = await getAssessmentBtnFromEmail(email);
 
   return `
   ${heading("New contact enquiry")}
@@ -88,7 +90,7 @@ export function contactUsNotificationToAdmin(
   )}
 
   ${section("Message", messageBlock(input.message))}
-
+  ${assessmentBtn}
   ${btnLink(`mailto:${email}?subject=${encodeURIComponent(`Re: ${subject}`)}`, "Reply to sender", "primary")}
 
   ${paragraph("This is an automated notification from Skill Bridge.")}
