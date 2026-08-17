@@ -32,7 +32,10 @@ export function createApp() {
   app.use(express.json({ limit: "2mb" }));
 
   app.get("/health", (_req, res) => {
-    res.status(200).json({ ok: true });
+    res.status(200).json({ 
+      name:"Skill Bridge",
+      version:"1.0.0",
+     });
   });
 
   app.use("/services/s3", s3Routes);
@@ -40,7 +43,7 @@ export function createApp() {
   app.use("/services/calendar", calendarRoutes);
   app.use("/cloudinary", cloudinaryRoutes);
   app.use("/assessments", assessmentsRoutes);
-  app.use("/stripe", stripeRoutes);
+  // app.use("/stripe", stripeRoutes); //unused
   app.use("/public", publicRoutes); //working perfectly
   app.use(notFoundHandler)
   app.use(errorHandler);

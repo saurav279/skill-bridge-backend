@@ -76,7 +76,7 @@ export const env = {
         process.env.STRIPE_PRICE_STRATEGY_SESSION_PRICE_ID ?? "",
       "bespoke-coaching": process.env.STRIPE_PRICE_BESPOKE_1_TO_1_PRICE_ID ?? "",
     },
-    allowKlarns:{
+    allowKlarna:{
       "strategy-call": "false",
       "leadership-enhancement": "true",
       "diy-membership": "true",
