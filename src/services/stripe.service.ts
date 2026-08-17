@@ -145,9 +145,9 @@ export const StripeService = {
       invoice_creation: {
         enabled: true,
       },
-      payment_method_configuration: env.stripe.allowKlarns[input.packageName] === "true"
-      ? "pmc_with_klarna"
-      : "pmc_without_klarna",
+      // payment_method_configuration: env.stripe.allowKlarns[input.packageName] === "true"
+      // ? "pmc_with_klarna"
+      // : "pmc_without_klarna",
       
       metadata: {
         type: CALENDAR_CHECKOUT_TYPE,
