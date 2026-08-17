@@ -23,3 +23,7 @@ export function createUnsubscribeId(): string {
 export function createConsultationId(): string {
   return `cs_${ulid()}`;
 }
+
+export function createAdminOtpId(): string {
+  return `ao_${ulid()}`;
+}

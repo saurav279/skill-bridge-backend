@@ -1,4 +1,5 @@
 import { db } from "../db/knex";
+import type { AdminListQuery } from "../types/admin";
 
 export type PackagePurchaseRow = {
   id: string;
@@ -50,5 +51,30 @@ export const PackagePurchaseModel = {
     return db<PackagePurchaseRow>(TABLE)
       .where({ stripe_session_id: stripeSessionId })
       .first();
+  },
+
+  async findById(id: string): Promise<PackagePurchaseRow | undefined> {
+    return db<PackagePurchaseRow>(TABLE).where({ id }).first();
+  },
+
+  async listForAdmin(
+    query: AdminListQuery,
+  ): Promise<{ rows: PackagePurchaseRow[]; total: number }> {
+    const q = db<PackagePurchaseRow>(TABLE);
+    if (query.name?.trim()) {
+      q.whereILike("customer_name", `%${query.name.trim()}%`);
+    }
+    if (query.email?.trim()) {
+      q.whereILike("customer_email", `%${query.email.trim()}%`);
+    }
+
+    const countRow = await q.clone().count<{ count: string }>("id as count").first();
+    const rows = await q
+      .clone()
+      .orderBy("updated_at", query.order)
+      .offset((query.page - 1) * query.limit)
+      .limit(query.limit);
+
+    return { rows, total: Number(countRow?.count ?? 0) };
   },
 };

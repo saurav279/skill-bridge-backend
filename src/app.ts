@@ -1,8 +1,10 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { env } from "./config/env";
 import { StripeController } from "./controllers/stripe.controller";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
+import adminRoutes from "./routes/admin.routes";
 import assessmentsRoutes from "./routes/assessments.routes";
 import calendarRoutes from "./routes/calendar.routes";
 import cloudinaryRoutes from "./routes/cloudinary.routes";
@@ -17,6 +19,7 @@ export function createApp() {
   app.use(
     cors({
       origin: [env.frontendUrl],
+      credentials: true,
       methods: ["GET", "POST", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "Stripe-Signature"],
     }),
@@ -30,6 +33,7 @@ export function createApp() {
   );
 
   app.use(express.json({ limit: "2mb" }));
+  app.use(cookieParser());
 
   app.get("/health", (_req, res) => {
     res.status(200).json({ 
@@ -45,6 +49,7 @@ export function createApp() {
   app.use("/assessments", assessmentsRoutes);
   // app.use("/stripe", stripeRoutes); //unused
   app.use("/public", publicRoutes); //working perfectly
+  app.use("/admin", adminRoutes);
   app.use(notFoundHandler)
   app.use(errorHandler);
 

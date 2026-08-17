@@ -5,6 +5,7 @@ import {
   buildUnsubscribeUrl,
   UnsubscribeService,
 } from "./unsubscribe.service";
+import { adminOtpEmailTemplate } from "../email-templates/admin-otp";
 import { btnLink } from "../email-templates/helpers";
 
 function createTransport() {
@@ -317,4 +318,30 @@ function createFooterTemplate(): string {
   ${btnLink(env.frontendUrl, "Skill Bridge", "link")}
   </div>
   `;
+}
+
+export async function sendAdminOtpEmail(otp: string): Promise<void> {
+  const to = env.admin.otpEmail.trim().toLowerCase();
+  if (!to) {
+    throw new AppError("Admin OTP recipient is not configured.", 500);
+  }
+
+  const transport = createTransport();
+  try {
+    await transport.sendMail({
+      from: env.smtp.from,
+      to,
+      subject: "Your Skill Bridge admin login code",
+      html: `<!DOCTYPE html><html><body>${adminOtpEmailTemplate(otp)}</body></html>`,
+    });
+    console.log(` [sendAdminOtpEmail]:✅  OTP email sent to ${to}`);
+  } catch (error) {
+    console.log(error);
+    throw new AppError(
+      `Failed to send admin OTP email: ${
+        error instanceof Error ? error.message : "unknown error"
+      }`,
+      500,
+    );
+  }
 }

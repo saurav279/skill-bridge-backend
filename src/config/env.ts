@@ -95,6 +95,10 @@ export const env = {
   },
   admin: {
     email: process.env.ADMIN_EMAIL ?? "",
+    loginEmail: process.env.ADMIN_LOGIN_EMAIL ?? "",
+    password: process.env.ADMIN_PASS ?? "",
+    jwtSecret: process.env.JWT_SECRET ?? "",
+    otpEmail: process.env.ADMIN_LOGIN_EMAIL ?? "",
   },
   google: {
     calendar: {

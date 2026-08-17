@@ -1,4 +1,5 @@
 import { db } from "../db/knex";
+import type { AdminListQuery } from "../types/admin";
 
 export type ContactMessageRow = {
   id: string;
@@ -45,5 +46,30 @@ export const ContactMessageModel = {
       .returning("*");
 
     return row;
+  },
+
+  async findById(id: string): Promise<ContactMessageRow | undefined> {
+    return db<ContactMessageRow>(TABLE).where({ id }).first();
+  },
+
+  async listForAdmin(
+    query: AdminListQuery,
+  ): Promise<{ rows: ContactMessageRow[]; total: number }> {
+    const q = db<ContactMessageRow>(TABLE);
+    if (query.name?.trim()) {
+      q.whereILike("name", `%${query.name.trim()}%`);
+    }
+    if (query.email?.trim()) {
+      q.whereILike("email", `%${query.email.trim()}%`);
+    }
+
+    const countRow = await q.clone().count<{ count: string }>("id as count").first();
+    const rows = await q
+      .clone()
+      .orderBy("updated_at", query.order)
+      .offset((query.page - 1) * query.limit)
+      .limit(query.limit);
+
+    return { rows, total: Number(countRow?.count ?? 0) };
   },
 };
