@@ -306,6 +306,7 @@ export const StripeService = {
       id: createPackagePurchaseId(),
       customerName,
       customerEmail,
+      customerPhone: phone ?? null,
       stripeSessionId: session.id,
       stripePaymentIntentId: paymentIntentId,
       amount: session.amount_total ?? 0,

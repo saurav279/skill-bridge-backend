@@ -18,7 +18,7 @@ import { sendAdminOtpEmail } from "./email.service";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const OTP_MAX_ATTEMPTS = 5;
-const ADMIN_TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const ADMIN_TOKEN_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 
 export type AdminAssessmentListItem = {
   id: string;

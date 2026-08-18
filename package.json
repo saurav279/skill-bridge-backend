@@ -11,7 +11,12 @@
     "postinstall": "npm run build",
     "migrate:latest": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:latest",
     "migrate:rollback": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:rollback",
-    "migrate:make": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:make"
+    "migrate:make": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:make",
+    "migrate:down":"tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:down",
+    "migrate:up":"tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:up",
+    "migrate:list":"tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:list"
+
+
   },
   "engines": {
     "node": ">=20"

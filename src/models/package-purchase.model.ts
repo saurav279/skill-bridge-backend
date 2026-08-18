@@ -5,6 +5,7 @@ export type PackagePurchaseRow = {
   id: string;
   customer_name: string;
   customer_email: string;
+  customer_phone: string | null;
   stripe_session_id: string;
   stripe_payment_intent_id: string | null;
   amount: number;
@@ -18,6 +19,7 @@ export type CreatePackagePurchaseInput = {
   id: string;
   customerName: string;
   customerEmail: string;
+  customerPhone: string | null;
   stripeSessionId: string;
   stripePaymentIntentId?: string | null;
   amount: number;
@@ -34,6 +36,7 @@ export const PackagePurchaseModel = {
         id: input.id,
         customer_name: input.customerName,
         customer_email: input.customerEmail,
+        customer_phone: input.customerPhone ?? null,
         stripe_session_id: input.stripeSessionId,
         stripe_payment_intent_id: input.stripePaymentIntentId ?? null,
         amount: input.amount,
