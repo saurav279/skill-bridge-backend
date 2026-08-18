@@ -66,12 +66,17 @@ export const PackagePurchaseModel = {
     query: AdminListQuery,
   ): Promise<{ rows: PackagePurchaseRow[]; total: number }> {
     const q = db<PackagePurchaseRow>(TABLE);
+
     if (query.name?.trim()) {
       q.whereILike("customer_name", `%${query.name.trim()}%`);
     }
     if (query.email?.trim()) {
       q.whereILike("customer_email", `%${query.email.trim()}%`);
     }
+    if (query.packageName?.trim()) {
+      q.where("package_name", query.packageName.trim());
+    }
+
 
     const countRow = await q.clone().count<{ count: string }>("id as count").first();
     const rows = await q

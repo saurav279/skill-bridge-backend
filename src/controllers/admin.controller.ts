@@ -22,6 +22,7 @@ const listQuerySchema = z.object({
   name: z.string().optional(),
   email: z.string().optional(),
   order: z.enum(["asc", "desc"]).default("desc"),
+  packageName: z.string().optional(),
 });
 
 export const AdminController = {

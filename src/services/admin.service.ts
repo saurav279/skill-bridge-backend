@@ -55,6 +55,7 @@ export type AdminPackagePurchase = {
   id: string;
   customerName: string;
   customerEmail: string;
+  customerPhone: string | null;
   stripeSessionId: string;
   stripePaymentIntentId: string | null;
   amount: number;
@@ -142,6 +143,7 @@ function mapPackagePurchase(row: PackagePurchaseRow): AdminPackagePurchase {
     id: row.id,
     customerName: row.customer_name,
     customerEmail: row.customer_email,
+    customerPhone: row.customer_phone,
     stripeSessionId: row.stripe_session_id,
     stripePaymentIntentId: row.stripe_payment_intent_id,
     amount: row.amount,
@@ -272,6 +274,7 @@ export const AdminService = {
     query: AdminListQuery,
   ): Promise<AdminListResponse<AdminPackagePurchase>> {
     const { rows, total } = await PackagePurchaseModel.listForAdmin(query);
+    console.log("query", query);
     return paginated(rows.map(mapPackagePurchase), total, query);
   },
 
