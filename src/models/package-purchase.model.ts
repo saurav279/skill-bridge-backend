@@ -42,6 +42,8 @@ export const PackagePurchaseModel = {
       })
       .returning("*");
 
+    console.log(" Package purchase created for email  ", input.customerEmail);
+
     return row;
   },
 

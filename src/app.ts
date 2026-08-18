@@ -16,6 +16,7 @@ import publicRoutes from "./routes/public.routes";
 export function createApp() {
   const app = express();
 
+
   app.use(
     cors({
       origin: [env.frontendUrl],

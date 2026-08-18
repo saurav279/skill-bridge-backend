@@ -5,7 +5,7 @@ import { PackagePurchaseModel } from "../models/package-purchase.model";
 import { AppError, ValidationError } from "../utils/errors";
 import { createPackagePurchaseId } from "../utils/id";
 import { sendEmail } from "./email.service";
-import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
+// import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
 import { CalendarService } from "./calendar.service";
 import type { PackageName } from "../types/packages";
 
@@ -150,6 +150,7 @@ export const StripeService = {
       // : "pmc_without_klarna",
       
       metadata: {
+      
         type: CALENDAR_CHECKOUT_TYPE,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
@@ -213,9 +214,7 @@ export const StripeService = {
         const type = session.metadata?.type;
         if (type === CALENDAR_CHECKOUT_TYPE) {
           await this.handleCalendarCheckoutCompleted(session);
-        } else {
-          await this.handlePackagePurchaseCompleted(session);
-        }
+        } 
         break;
       }
 
@@ -236,68 +235,7 @@ export const StripeService = {
     }
   },
 
-  async handlePackagePurchaseCompleted(
-    session: Stripe.Checkout.Session,
-  ): Promise<void> {
 
-    const metadata = session.metadata ?? {};
-    if (metadata.type !== PACKAGE_PURCHASE_TYPE) {
-      return;
-    }
-    const customerName = session.customer_details?.name?.trim() ?? "-";
-    const customerEmail =
-      session.customer_details?.email?.trim() ||
-      session.customer_email?.trim() ||
-      "-";
-
-    const existing = await PackagePurchaseModel.findBySessionId(session.id);
-    if (existing) {
-      return;
-    }
-
-    // const customerName = metadata.customerName?.trim();
-    // const customerEmail = metadata.customerEmail?.trim();
-    const packageName = metadata.packageName?.trim();
-
-    if (!customerName || !customerEmail || !packageName) {
-      console.error(
-        "Package purchase metadata missing fields for session:",
-        session.id,
-        metadata,
-      );
-      return;
-    }
-
-    const paymentIntentId =
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null);
-
-    await PackagePurchaseModel.create({
-      id: createPackagePurchaseId(),
-      customerName,
-      customerEmail,
-      stripeSessionId: session.id,
-      stripePaymentIntentId: paymentIntentId,
-      amount: session.amount_total ?? 0,
-      currency: session.currency ?? "gbp",
-      packageName,
-    });
-
-    await sendEmail({
-      to: env.admin.email,
-      subject: `Package purchased: ${packageName}`,
-      body: stripePaymentSuccessToAdmin({
-        customerName,
-        customerEmail,
-        packageName,
-        packagePrice: session.amount_total ?? 0,
-        currency: session.currency ?? "gbp",
-      }),
-    });
-
-    console.log("Package purchase saved:", session.id);
-  },
 
   async handleCalendarCheckoutCompleted(
     session: Stripe.Checkout.Session,
@@ -353,7 +291,29 @@ export const StripeService = {
             ? session.payment_intent
             : (session.payment_intent?.id ?? null),
       });
-      console.log("Calendar consultation booked:", session.id);
+      console.log("Calendar consultation booked and email sent: ", session.id);
+
+
+      const customerName = name;
+      const customerEmail = email;
+
+      const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : (session.payment_intent?.id ?? null);
+
+    await PackagePurchaseModel.create({
+      id: createPackagePurchaseId(),
+      customerName,
+      customerEmail,
+      stripeSessionId: session.id,
+      stripePaymentIntentId: paymentIntentId,
+      amount: session.amount_total ?? 0,
+      currency: session.currency ?? "gbp",
+      packageName,
+    });
+
+
     } catch (error) {
       if (
         error instanceof ValidationError &&
