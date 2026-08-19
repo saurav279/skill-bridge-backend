@@ -6,11 +6,14 @@ import type {
 } from "../types/assessment";
 import { ROUTE_SECTIONS, type RouteId } from "../types/assessment";
 import { NotFoundError, ValidationError } from "../utils/errors";
-import { createAssessmentId } from "../utils/id";
+import { createAssessmentId, createLeadId, createNoteId, createPipelineId } from "../utils/id";
 import { assessmentEmailTemplate } from "../email-templates/assessment";
 import { sendEmail } from "./email.service";
 import { buildAssessmentReport } from "./scoring.service";
 import { S3Service } from "./s3.service";
+import { LeadModel } from "../models/lead.model";
+import { NoteModel } from "../models/note.model";
+import { PipelineModel } from "../models/pipeline.model";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -142,6 +145,28 @@ export const AssessmentService = {
       report,
       confidenceScore: report.confidenceScore,
     });
+
+ 
+    const lead = await LeadModel.create({
+      id: createLeadId(),
+      email: report.customerEmail ?? "",
+      name: report.customerName ?? "",
+      phone: extractPhone(payload) ?? "",
+      priority: "High",
+    });
+    if (lead.id) {
+      await NoteModel.create({
+        id: createNoteId(),
+        leadId: lead.id,
+        note: `Assessment Completed: The assessment was completed with a confidence score of ${report.confidenceScore}/100.`,
+        notedBy: "System",
+      });
+      await PipelineModel.create({
+        id: createPipelineId(),
+        leadId: lead.id,
+        status: "Assessment Completed",
+      });
+    }
 
     return report;
   },

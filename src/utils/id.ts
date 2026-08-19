@@ -27,3 +27,15 @@ export function createConsultationId(): string {
 export function createAdminOtpId(): string {
   return `ao_${ulid()}`;
 }
+
+export function createLeadId(): string {
+  return `ld_${ulid()}`;
+}
+
+export function createNoteId(): string {
+  return `nt_${ulid()}`;
+}
+
+export function createPipelineId(): string {
+  return `pl_${ulid()}`;
+}

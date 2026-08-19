@@ -4,7 +4,10 @@ import {
   contactUsThankYouToUser,
 } from "../email-templates/contact-us";
 import { ContactMessageModel } from "../models/contact-message.model";
-import { createContactMessageId } from "../utils/id";
+import { LeadModel } from "../models/lead.model";
+import { NoteModel } from "../models/note.model";
+import { PipelineModel } from "../models/pipeline.model";
+import { createContactMessageId, createLeadId, createNoteId, createPipelineId } from "../utils/id";
 import { sendEmail } from "./email.service";
 
 export type ContactUsInput = {
@@ -42,6 +45,29 @@ export const ContactService = {
       subject: input.subject,
       message: input.message,
     };
+
+        //create 
+        const lead = await LeadModel.create({
+          id: createLeadId(),
+          email: input.email ?? "",
+          name: input.name ?? "",
+          phone: input.phone ?? "",
+          priority: "High",
+        });
+        if (lead.id) {
+          await NoteModel.create({
+            id: createNoteId(),
+            leadId: lead.id,
+            note: `Contact Enquiry: ${input.subject.trim()}`,
+            notedBy: "System",
+          });
+          const status = input.subject.includes("Discovery Call") ? "Discovery Call Scheduled" : "Contact Enquiry";
+          await PipelineModel.create({
+            id: createPipelineId(),
+            leadId: lead.id,
+            status: status,
+          });
+        }
 
     await sendEmail({
       to: input.email,

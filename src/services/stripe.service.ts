@@ -3,11 +3,15 @@ import { env } from "../config/env";
 import { ConsultationModel } from "../models/consultation.model";
 import { PackagePurchaseModel } from "../models/package-purchase.model";
 import { AppError, ValidationError } from "../utils/errors";
-import { createPackagePurchaseId } from "../utils/id";
+import { createLeadId, createNoteId, createPackagePurchaseId, createPipelineId } from "../utils/id";
 import { sendEmail } from "./email.service";
 // import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
-import { CalendarService } from "./calendar.service";
+import { CalendarService, SLOT_WINDOW } from "./calendar.service";
 import type { PackageName } from "../types/packages";
+import { NoteModel } from "../models/note.model";
+import { LeadModel } from "../models/lead.model";
+import { formatSlotRange } from "../email-templates/consultation";
+import { PipelineModel } from "../models/pipeline.model";
 
 const PACKAGE_PURCHASE_TYPE = "package-purchase";
 const CALENDAR_CHECKOUT_TYPE = "stripe-calander";
@@ -133,7 +137,7 @@ export const StripeService = {
 
     const priceId = resolvePriceId(input.packageName);
     const stripe = getStripeClient();
-   
+
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -148,9 +152,9 @@ export const StripeService = {
       // payment_method_configuration: env.stripe.allowKlarns[input.packageName] === "true"
       // ? "pmc_with_klarna"
       // : "pmc_without_klarna",
-      
+
       metadata: {
-      
+
         type: CALENDAR_CHECKOUT_TYPE,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
@@ -214,7 +218,7 @@ export const StripeService = {
         const type = session.metadata?.type;
         if (type === CALENDAR_CHECKOUT_TYPE) {
           await this.handleCalendarCheckoutCompleted(session);
-        } 
+        }
         break;
       }
 
@@ -298,21 +302,47 @@ export const StripeService = {
       const customerEmail = email;
 
       const paymentIntentId =
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null);
+        typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : (session.payment_intent?.id ?? null);
 
-    await PackagePurchaseModel.create({
-      id: createPackagePurchaseId(),
-      customerName,
-      customerEmail,
-      customerPhone: phone ?? null,
-      stripeSessionId: session.id,
-      stripePaymentIntentId: paymentIntentId,
-      amount: session.amount_total ?? 0,
-      currency: session.currency ?? "gbp",
-      packageName,
-    });
+      await PackagePurchaseModel.create({
+        id: createPackagePurchaseId(),
+        customerName,
+        customerEmail,
+        customerPhone: phone ?? null,
+        stripeSessionId: session.id,
+        stripePaymentIntentId: paymentIntentId,
+        amount: session.amount_total ?? 0,
+        currency: session.currency ?? "gbp",
+        packageName,
+      });
+
+      const time = formatSlotRange(new Date(startTime), new Date(endTime), SLOT_WINDOW.timeZone)
+
+
+      const lead = await LeadModel.create({
+        id: createLeadId(),
+        email: email,
+        name: name,
+        phone: phone,
+        priority: "High",
+      });
+      if (lead.id) {
+        await NoteModel.create({
+          id: createNoteId(),
+          leadId: lead.id,
+          note: `Package Purchased: ${packageName} — booked for ${time}, with a total payment of £${session.amount_total}`,
+          notedBy: "System",
+        });
+        await PipelineModel.create({
+          id: createPipelineId(),
+          leadId: lead.id,
+          status: packageName + " Scheduled",
+        });
+      }
+
+
 
 
     } catch (error) {

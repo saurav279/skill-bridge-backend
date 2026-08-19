@@ -39,7 +39,7 @@ function formatUkDateTime(date: Date, timeZone: string): string {
   }).format(date);
 }
 
-function formatSlotRange(
+export function formatSlotRange(
   startTime: Date,
   endTime: Date,
   timeZone: string,

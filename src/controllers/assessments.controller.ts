@@ -8,6 +8,8 @@ import {
   adminAssessmentEmailTemplate,
   assessmentEmailTemplate,
 } from "../email-templates/assessment";
+import { LeadModel } from "../models/lead.model";
+import { createLeadId } from "../utils/id";
 
 const fileMetaSchema = z.object({
   name: z.string(),
@@ -117,6 +119,8 @@ export const AssessmentsController = {
           }),
         });
       }
+
+
       res.status(201).json(report);
     } catch (error) {
       next(error);
