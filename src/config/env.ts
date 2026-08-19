@@ -75,16 +75,13 @@ export const env = {
       "strategy-session":
         process.env.STRIPE_PRICE_STRATEGY_SESSION_PRICE_ID ?? "",
       "bespoke-coaching": process.env.STRIPE_PRICE_BESPOKE_1_TO_1_PRICE_ID ?? "",
-    },
-    allowKlarna:{
-      "strategy-call": "false",
-      "leadership-enhancement": "true",
-      "diy-membership": "true",
-      "review-only": "true",
-      "full-review": "true",
-      "strategy-session": "true",
-      "bespoke-coaching": "true",
+
+      //appeal packages
+      "appeal-diagnosis": process.env.STRIPE_PRICE_APPEAL_DIAGNOSIS_PRICE_ID ?? "",
+      "appeal-rebuild": process.env.STRIPE_PRICE_APPEAL_REBUILD_PRICE_ID ?? "",
+      "appeal-full-support": process.env.STRIPE_PRICE_APPEAL_FULL_SUPPORT_PRICE_ID ?? "",
     }
+   
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",

@@ -6,6 +6,9 @@ export const PACKAGE_NAMES = [
   "full-review",
   "strategy-session",
   "bespoke-coaching",
+  "appeal-diagnosis",
+  "appeal-rebuild",
+  "appeal-full-support"
 ] as const;
 
 export type PackageName = (typeof PACKAGE_NAMES)[number];
