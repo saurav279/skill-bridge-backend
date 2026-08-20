@@ -152,6 +152,12 @@ const existingLead = await this.getLeadByEmail(input.email);
     if (query.email?.trim()) {
       q.whereILike("email", `%${query.email.trim()}%`);
     }
+    if (query.from?.trim()) {
+      q.where("created_at", ">=", query.from);
+    }
+    if (query.to?.trim()) {
+      q.where("created_at", "<=", query.to);
+    }
 
     const countRow = await q.clone().count<{ count: string }>("id as count").first();
 

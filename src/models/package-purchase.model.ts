@@ -76,6 +76,12 @@ export const PackagePurchaseModel = {
     if (query.packageName?.trim()) {
       q.where("package_name", query.packageName.trim());
     }
+    if (query.from?.trim()) {
+      q.where("created_at", ">=", query.from);
+    }
+    if (query.to?.trim()) {
+      q.where("created_at", "<=", query.to);
+    }
 
 
     const countRow = await q.clone().count<{ count: string }>("id as count").first();

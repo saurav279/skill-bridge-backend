@@ -24,6 +24,8 @@ const listQuerySchema = z.object({
   email: z.string().optional(),
   order: z.enum(["asc", "desc"]).default("desc"),
   packageName: z.string().optional(),
+  from: z.string().optional(),
+  to: z.string().optional(),
 });
 
 const optionalEmail = z

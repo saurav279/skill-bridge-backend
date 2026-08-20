@@ -5,6 +5,8 @@ export type AdminListQuery = {
   email?: string;
   order: "asc" | "desc";
   packageName?: string;
+  from?: string;
+  to?: string;
 };
 
 export type AdminListResponse<T> = {
