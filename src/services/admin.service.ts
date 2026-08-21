@@ -274,7 +274,7 @@ export const AdminService = {
     query: AdminListQuery,
   ): Promise<AdminListResponse<AdminPackagePurchase>> {
     const { rows, total } = await PackagePurchaseModel.listForAdmin(query);
-    console.log("query", query);
+    // console.log("query", query);
     return paginated(rows.map(mapPackagePurchase), total, query);
   },
 

@@ -39,3 +39,15 @@ export function createNoteId(): string {
 export function createPipelineId(): string {
   return `pl_${ulid()}`;
 }
+
+export function createPaymentPlanId(): string {
+  return `pln_${ulid()}`;
+}
+
+export function createInstallmentId(): string {
+  return `in_${ulid()}`;
+}
+
+export function createUserId(): string {
+  return `usr_${ulid()}`;
+}

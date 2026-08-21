@@ -12,9 +12,14 @@ import { NoteModel } from "../models/note.model";
 import { LeadModel } from "../models/lead.model";
 import { formatSlotRange } from "../email-templates/consultation";
 import { PipelineModel } from "../models/pipeline.model";
+import {
+  markInstallmentFailedFromStripe,
+  markInstallmentPaidFromStripe,
+} from "./installment-events";
 
 const PACKAGE_PURCHASE_TYPE = "package-purchase";
 const CALENDAR_CHECKOUT_TYPE = "stripe-calander";
+export const INSTALLMENT_CHECKOUT_TYPE = "installment-payment";
 const STRIPE_METADATA_MAX_LENGTH = 500;
 
 export type CreateCheckoutSessionInput = {
@@ -40,6 +45,25 @@ export type CreateCalendarCheckoutInput = {
   packageName: PackageName;
   successUrl: string;
   cancelUrl: string;
+};
+
+export type CreateInstallmentCheckoutInput = {
+  installmentId: string;
+  planId: string;
+  customerEmail: string;
+  customerName: string;
+  packageName: string;
+  sequence: number;
+  installmentCount: number;
+  amount: number;
+  currency: string;
+  successUrl: string;
+  cancelUrl: string;
+};
+
+export type CreateInstallmentCheckoutResult = CreateCheckoutSessionResult & {
+  expiresAt: Date;
+  paymentIntentId: string | null;
 };
 
 function getStripeClient(): Stripe {
@@ -180,6 +204,72 @@ export const StripeService = {
     };
   },
 
+  async createInstallmentCheckoutSession(
+    input: CreateInstallmentCheckoutInput,
+  ): Promise<CreateInstallmentCheckoutResult> {
+    const stripe = getStripeClient();
+    const packageLabel = input.packageName
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: input.customerEmail.trim(),
+      line_items: [
+        {
+          price_data: {
+            currency: input.currency,
+            unit_amount: input.amount,
+            product_data: {
+              name: `${packageLabel} — installment ${input.sequence} of ${input.installmentCount}`,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      allow_promotion_codes: true,
+      invoice_creation: {
+        enabled: true,
+      },
+      success_url: input.successUrl,
+      cancel_url: input.cancelUrl,
+      metadata: {
+        type: INSTALLMENT_CHECKOUT_TYPE,
+        installmentId: input.installmentId,
+        planId: input.planId,
+        packageName: input.packageName,
+        sequence: String(input.sequence),
+        customerName: metadataValue(input.customerName, "customerName"),
+      },
+      payment_intent_data: {
+        metadata: {
+          type: INSTALLMENT_CHECKOUT_TYPE,
+          installmentId: input.installmentId,
+          planId: input.planId,
+        },
+      },
+    });
+
+    if (!session.url) {
+      throw new AppError("Stripe did not return a checkout URL", 500);
+    }
+
+    const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : (session.payment_intent?.id ?? null);
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+      expiresAt: session.expires_at
+        ? new Date(session.expires_at * 1000)
+        : new Date(Date.now() + 24 * 60 * 60 * 1000),
+      paymentIntentId,
+    };
+  },
+
   constructEvent(
     rawBody: string | Buffer,
     signature: string | string[] | undefined,
@@ -219,6 +309,9 @@ export const StripeService = {
         if (type === CALENDAR_CHECKOUT_TYPE) {
           await this.handleCalendarCheckoutCompleted(session);
         }
+        if (type === INSTALLMENT_CHECKOUT_TYPE) {
+          await markInstallmentPaidFromStripe(session);
+        }
         break;
       }
 
@@ -231,6 +324,9 @@ export const StripeService = {
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log("Payment failed:", paymentIntent.id);
+        if (paymentIntent.metadata?.type === INSTALLMENT_CHECKOUT_TYPE) {
+          await markInstallmentFailedFromStripe(paymentIntent);
+        }
         break;
       }
 

@@ -12,11 +12,9 @@
     "migrate:latest": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:latest",
     "migrate:rollback": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:rollback",
     "migrate:make": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:make",
-    "migrate:down":"tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:down",
-    "migrate:up":"tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:up",
-    "migrate:list":"tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:list"
-
-
+    "migrate:down": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:down",
+    "migrate:up": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:up",
+    "migrate:list": "tsx node_modules/knex/bin/cli.js --knexfile knexfile.ts migrate:list"
   },
   "engines": {
     "node": ">=20"
@@ -33,6 +31,7 @@
     "@types/nodemailer": "^8.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
+    "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "googleapis": "^174.0.1",

@@ -7,6 +7,10 @@ export type AdminListQuery = {
   packageName?: string;
   from?: string;
   to?: string;
+  status?: string;
+  leadId?: string;
+  planId?: string;
+  userId?: string;
 };
 
 export type AdminListResponse<T> = {
