@@ -112,6 +112,7 @@ export const env = {
     /\/$/,
     "",
   ),
+  redisUrl: requireEnv("REDIS_URL"),
   test:{
     noLLM: process.env.DEV_NO_LLM === "true",
   }

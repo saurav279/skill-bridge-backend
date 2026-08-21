@@ -9,7 +9,7 @@ import { ConsultationModel } from "../models/consultation.model";
 import { createConsultationId } from "../utils/id";
 import { AppError, ValidationError } from "../utils/errors";
 import { intakeSchema } from "../utils/intake";
-import { sendEmail } from "./email.service";
+import { queueEmail } from "../queues/email.queue";
 import { sanitizePackageName } from "../types/packages";
 import type { PackageName } from "../types/packages";
 import crypto from "crypto";
@@ -518,14 +518,14 @@ export const CalendarService = {
       };
 
       try {
-        await sendEmail({
+        await queueEmail({
           to: email,
           subject: `Your Package ${emailInput.packageName} is purchased and initial call booked`,
           body: consultationThankYouToUser(emailInput),
         });
 
         if (env.admin.email.trim()) {
-          await sendEmail({
+          await queueEmail({
             to: env.admin.email,
             subject: `New Package ${emailInput.packageName} is purchased and initial call booked : ${name}`,
             body: await consultationNotificationToAdmin(emailInput),

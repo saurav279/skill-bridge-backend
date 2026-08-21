@@ -3,7 +3,7 @@ import { z } from "zod";
 import { env } from "../config/env";
 import { AssessmentService } from "../services/assessment.service";
 import type { AssessPayload } from "../types/assessment";
-import { sendEmail } from "../services/email.service";
+import { queueEmail } from "../queues/email.queue";
 import {
   adminAssessmentEmailTemplate,
   assessmentEmailTemplate,
@@ -100,7 +100,7 @@ export const AssessmentsController = {
         (typeof payload.resumeLink === "string" ? payload.resumeLink : undefined);
 
       if (report.customerEmail) {
-        await sendEmail({
+        await queueEmail({
           to: report.customerEmail,
           subject: "Your Skill Bridge Assessment Report",
           body: assessmentEmailTemplate(report),
@@ -108,7 +108,7 @@ export const AssessmentsController = {
       }
 
       if (env.admin.email.trim()) {
-        await sendEmail({
+        await queueEmail({
           to: env.admin.email,
           subject: "New Assessment Report",
           body: adminAssessmentEmailTemplate({

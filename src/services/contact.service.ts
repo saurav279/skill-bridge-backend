@@ -8,7 +8,7 @@ import { LeadModel } from "../models/lead.model";
 import { NoteModel } from "../models/note.model";
 import { PipelineModel } from "../models/pipeline.model";
 import { createContactMessageId, createLeadId, createNoteId, createPipelineId } from "../utils/id";
-import { sendEmail } from "./email.service";
+import { queueEmail } from "../queues/email.queue";
 
 export type ContactUsInput = {
   name: string;
@@ -69,14 +69,14 @@ export const ContactService = {
           });
         }
 
-    await sendEmail({
+    await queueEmail({
       to: input.email,
       subject: `Re: ${input.subject.trim()}`,
       body: contactUsThankYouToUser(templateInput),
     });
 
     if (env.admin.email.trim()) {
-      await sendEmail({
+      await queueEmail({
         to: env.admin.email,
         subject: `New contact enquiry: ${input.subject.trim() || "No subject"}`,
         body: await contactUsNotificationToAdmin(templateInput),

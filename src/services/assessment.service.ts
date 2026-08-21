@@ -8,7 +8,7 @@ import { ROUTE_SECTIONS, type RouteId } from "../types/assessment";
 import { NotFoundError, ValidationError } from "../utils/errors";
 import { createAssessmentId, createLeadId, createNoteId, createPipelineId } from "../utils/id";
 import { assessmentEmailTemplate } from "../email-templates/assessment";
-import { sendEmail } from "./email.service";
+import { queueEmail } from "../queues/email.queue";
 import { buildAssessmentReport } from "./scoring.service";
 import { S3Service } from "./s3.service";
 import { LeadModel } from "../models/lead.model";
@@ -212,7 +212,7 @@ export const AssessmentService = {
       );
     }
 
-    await sendEmail({ subject: `Your Skill Bridge assessment (${row.report.confidenceScore}/100)`, body: assessmentEmailTemplate(row.report), to });
+    await queueEmail({ subject: `Your Skill Bridge assessment (${row.report.confidenceScore}/100)`, body: assessmentEmailTemplate(row.report), to });
 
     return { message: "Assessment email sent." };
   },

@@ -4,7 +4,6 @@ import { ConsultationModel } from "../models/consultation.model";
 import { PackagePurchaseModel } from "../models/package-purchase.model";
 import { AppError, ValidationError } from "../utils/errors";
 import { createLeadId, createNoteId, createPackagePurchaseId, createPipelineId } from "../utils/id";
-import { sendEmail } from "./email.service";
 // import { stripePaymentSuccessToAdmin } from "../email-templates/stripe";
 import { CalendarService, SLOT_WINDOW } from "./calendar.service";
 import type { PackageName } from "../types/packages";

@@ -333,7 +333,7 @@ function buildFallbackReport(input: ScoreInput): Assessment {
   const routeId = payload.routeId;
 
   console.warn(
-    "[scoring] OPENROUTER_API_KEY missing — returning hardcoded assessment fallback",
+    "[scoring] Returning hardcoded assessment fallback",
   );
 
   return {

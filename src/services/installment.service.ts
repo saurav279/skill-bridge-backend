@@ -26,7 +26,7 @@ import {
   createNoteId,
   createPaymentPlanId,
 } from "../utils/id";
-import { sendEmail } from "./email.service";
+import { queueEmail } from "../queues/email.queue";
 import { StripeService } from "./stripe.service";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -631,7 +631,7 @@ export const InstallmentService = {
       throw new ValidationError("Checkout URL could not be created");
     }
 
-    await sendEmail({
+    await queueEmail({
       to: withCheckout.customerEmail,
       subject: `Installment ${withCheckout.sequence} of ${withCheckout.installmentCount} — ${packageLabel(withCheckout.packageName)}`,
       body: installmentCheckoutToCustomer({
