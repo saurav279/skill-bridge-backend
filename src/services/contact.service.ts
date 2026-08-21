@@ -16,7 +16,7 @@ export type ContactUsInput = {
   phone: string;
   livesInUk: boolean;
   currentVisa?: string;
-  prefered: "phone" | "google_meet";
+  prefered: "phone" | "email";
   subject: string;
   message: string;
 };

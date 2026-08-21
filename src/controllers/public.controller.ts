@@ -9,7 +9,7 @@ const contactUsSchema = z
     email: z.string().email(),
     subject: z.string().min(1),
     message: z.string().min(1),
-    prefered: z.enum(["phone", "google_meet"]),
+    prefered: z.enum(["phone", "email"]),
   })
   .and(intakeSchema);
 

@@ -17,7 +17,7 @@ export type ContactUsEmailInput = {
   phone: string;
   livesInUk: boolean;
   currentVisa?: string | null;
-  prefered: "phone" | "google_meet";
+  prefered: "phone" | "email";
   subject: string;
   message: string;
 };
@@ -27,8 +27,8 @@ function messageBlock(message: string): string {
   return `<p>${safe}</p>`;
 }
 
-function formatPrefered(prefered: "phone" | "google_meet"): string {
-  return prefered === "phone" ? "Phone" : "Google Meet";
+function formatPrefered(prefered: "phone" | "email"): string {
+  return prefered === "phone" ? "Phone" : "Email";
 }
 
 export function contactUsThankYouToUser(input: ContactUsEmailInput): string {

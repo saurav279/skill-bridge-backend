@@ -22,7 +22,7 @@ export type CreateContactMessageInput = {
   phone: string;
   livesInUk: boolean;
   currentVisa?: string | null;
-  prefered: "phone" | "google_meet";
+  prefered: "phone" | "email";
   subject: string;
   message: string;
 };
